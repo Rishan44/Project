@@ -1,6 +1,8 @@
 
 <%- include('../partials/adminAside.ejs') %>
 
+<!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous"> -->
+
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
 
    <%- include('../partials/adminNavbar.ejs') %>
@@ -45,7 +47,7 @@
                                     <% 
                                       const fullName = userData[i].fname+' '+userData[i].lname
                                     %>
-                                    <h6 class="mb-0 text-sm"><%= fullName %>l</h6>
+                                    <h6 class="mb-0 text-sm"><%= fullName %></h6>
                                     <p class="text-xs text-secondary mb-0"><%= userData[i].email %></p>
                                   </div>
                                 </div>
@@ -57,29 +59,31 @@
 
                               <td class="align-middle text-center text-sm">
                                 <% 
-                                  const dd = userData[i].doj.getDate();
-                                  const mm = userData[i].doj.getMonth() + 1;
-                                  const yyyy = userData[i].doj.getFullYear();
+                                  //const dd = userData[i].doj.getDate();
+                                  //const mm = userData[i].doj.getMonth() + 1;
+                                  //const yyyy = userData[i].doj.getFullYear();
                                   
-                                  const formattedDate = `${dd}-${mm}-${yyyy}`; 
+                                 // const formattedDate = `${dd}-${mm}-${yyyy}`; 
                                 %>
-                                <span class="text-secondary text-xs font-weight-bold"><%= formattedDate %></span>
+                                <span class="text-secondary text-xs font-weight-bold"><%= //formattedDate %></span>
                               </td>
 
                               <td class="align-middle text-center">
                                 <% 
-                                  if(!userData[i].isBlocked){
+                                  if(userData[i].isBlocked){
                                      %>
-                                        <a href="#confirmationPopUp" class="btn btn-danger modalBTN" data-bs-toggle="modal" data-id="<%= userData[i]._id %>">Block</a>
+                                     <a href="#confirmationPopUp" class="btn btn-success modalBTN" data-bs-toggle="modal" data-id="<%= userData[i]._id %>">Unblock</a>
+  
                                      <%
                                   }else{
                                     %>
-                                      <a href="#confirmationPopUp" class="btn btn-success modalBTN" data-bs-toggle="modal" data-id="<%= userData[i]._id %>">Unblock</a>
+                                    <a href="#confirmationPopUp" class="btn btn-danger modalBTN" data-bs-toggle="modal" data-id="<%= userData[i]._id %>">Block</a>
+  
                                     <%
                                   }
                                 %>
                               </td>
-
+  
                                                                   <!-- Modal Start  -->
                                                                   <div class="modal fade" id="confirmationPopUp" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                                                     <div class="modal-dialog">
@@ -97,8 +101,8 @@
                                                                           </div>
                                                                       </div>
                                                                     </div>
-                                                                </div> 
-                                                                <!-- Modal End  -->
+                                                                </div>
+                                                              <!-- Modal End  -->
                               
                             </tr>
                          <% 
@@ -115,6 +119,9 @@
     </div>
   </div>
 
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
 <script>
     $('.modalBTN').click( function () {
@@ -123,6 +130,13 @@
         $(".modal-footer #confirmBTN").attr('href', routeURL);
     });
 </script>
+
+
+<!-- <script>
+  $(' .modalBTN').click(function () {
+    var userId = $(this).data('id'); var routeURL = '/admin/users/block/' + userId
+    $(".modal-footer #confirmBTN").attr('href', routeURL);
+  }); </script> -->
 
   <%- include('../partials/adminFooter.ejs') %>      
 

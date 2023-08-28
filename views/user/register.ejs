@@ -70,28 +70,39 @@
                                     <h4> Login </h4>
                                 </a> -->
                             </div>
+                           <div> 
+                            <h6 class="text-center"> <% if(typeof message !=='undefined' ){ %>
+                                <p class="">
+                                    <%= message %>
+                                </p>
+                                <%} %> 
+                                </h6>
+                           </div>
                             <div class="tab-content">
-                                <div id="lg2" class="tab-pane active">
+                                <div class="tab-pane active">
                                     <div class="login-form-container">
                                         <div class="login-register-form">
-                                            <form action="" method="post">
-                                                <input type="text" name="first-name" placeholder="First Name">
-                                                <input type="text" name="last-name" placeholder="Last Name">
-                                                <input name="user-email" placeholder="Email" type="email">
-                                                <input name="user-mobile-number" placeholder="Mobile Number" type="tel">
-                                                <input type="password" name="user-password" placeholder="Password">
-                                                <input type="confirm_password" name="user-confirm_password" placeholder="Confirm Password">
+                                            
+                                            <form action="/register" method="post" id="submit-form">
+                                                <input type="text" name="fname" placeholder="First Name" id="fname-input">
+                                                <input type="text" name="lname" placeholder="Last Name" id="lname-input" >
+                                                <input name="email" placeholder="Email" type="email" id="email-input">
+                                                <input name="mobile" placeholder="Mobile Number" type="tel" id="mobno-input">
+                                                <input type="password" name="password" placeholder="Password" id="password-input">
+                                                <input type="password" name="confirmPassword" placeholder="Confirm Password" id="confirmPassword-input">
+                                                <div id="message-error" class="text-danger"></div>
                                                 <div class="button-box">
-                                                    <button type="submit">Register</button>
+                                                    <button type="submit"">Register</button>
+                                                    
                                                 </div>
                                             </form>
                                         </div>
                                     </div>
                                 </div>
-                                <div id="lg1" class="tab-pane">
+                                <!-- <div id="lg1" class="tab-pane">
                                     <div class="login-form-container">
                                         <div class="login-register-form">
-                                            <form action="#" method="post">
+                                            <form action="/login" method="post">
                                                 <input type="text" name="user-name" placeholder="Username">
                                                 <input type="password" name="user-password" placeholder="Password">
                                                 <div class="button-box">
@@ -107,7 +118,7 @@
                                             </form>
                                         </div>
                                     </div>
-                                </div>
+                                </div> -->
                                             </form>
                                         </div>
                                     </div>
@@ -118,6 +129,202 @@
                 </div>
             </div>
         </div>
+
+
+
+
+
+        <script>
+
+            /* Form Validation Start */
+    
+            const form = document.getElementById('submit-form');
+            const fName = document.getElementById('fname-input');
+            const lName = document.getElementById('lname-input');
+            const emailId = document.getElementById('email-input');
+            const mobNo = document.getElementById('mobno-input');
+            const password = document.getElementById('password-input');
+            const confirmPassword = document.getElementById('confirmPassword-input');
+    
+    
+    
+            form.addEventListener('submit', e => {
+    
+    
+                e.preventDefault();
+                validateInput();
+            });
+    
+            const setError = (element, message) => {
+    
+                const inputControl = element.parentElement;
+                // const errorDisplay = inputControl.querySelector('.error');
+                // errorDisplay.innerText=message;
+    
+                element.placeholder = message;
+                fName.style.border = '1.5px solid red';
+                lName.style.border = '1.5px solid red';
+                emailId.style.border = '1.5px solid red';
+                mobNo.style.border = '1.5px solid red';
+                password.style.border = '1.5px solid red';
+                confirmPassword.style.border = '1.5px solid red';
+                inputControl.classList.add('error');
+                inputControl.classList.remove('success');
+    
+            };
+    
+            const setSuccess = element => {
+    
+                const inputControl = element.parentElement;
+                // const errorDisplay= inputControl.querySelector('.error');
+                // errorDisplay.innerText='';
+                element.placeholder = '';
+                inputControl.classList.add('success');
+                inputControl.classList.remove('error');
+            };
+    
+            const isValidFName = fName => {
+    
+                const rename = /^[a-zA-Z]/;
+                return rename.test(String(fName));
+            };
+    
+            const isValidLName = lName => {
+    
+                const rename = /^[a-zA-Z]/;
+                return rename.test(String(lName));
+            };
+    
+            const isValidEmail = emailId => {
+    
+                const re = /^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$/;
+                return re.test(String(emailId).toLowerCase());
+            };
+    
+            const isValidMobNo = mobNo => {
+    
+                const re = /^[0-9]{10}$/;
+                return re.test(mobNo);
+            };
+    
+            const isValidPassword = password => {
+                // Regular expression to validate password
+                // The password must contain at least 8 characters, including at least one uppercase letter, one lowercase letter, and one digit.
+                const re = /^[a-zA-Z\d]{8,}$/;  /* /^(?=.[a-z])(?=.[A-Z])(?=.\d)[a-zA-Z\d]{8,}$/ **/
+                return re.test(password);
+            };
+    
+            const isValidConfirmPassword = confirmPassword => {
+    
+                return confirmPassword === isValidPassword;
+            }
+    
+            const validateInput = () => {
+                console.log("Entered to validate input");
+                const firstNameValue = fName.value.trim();
+                const lastNameValue = lName.value.trim();
+                const emailIdValue = emailId.value.trim();
+                const mobNoValue = mobNo.value.trim();
+                const passwordValue = document.getElementById('password-input').value.trim();
+                const confirmPasswordValue = document.getElementById('confirmPassword-input').value.trim();
+    
+    
+                if (firstNameValue === '') {
+    
+                    setError(fName, 'First Name is required');
+    
+                } else if (!isValidFName(firstNameValue)) {
+                    //setError(username);
+                    document.getElementById('message-error').innerHTML = 'Names should be alphabets';
+    
+    
+                } else {
+                    console.log("fName Ok");
+                    setSuccess(fName);
+                }
+    
+                if (lastNameValue === '') {
+    
+                    setError(lName, 'Last Name is required');
+    
+                } else if (!isValidLName(lastNameValue)) {
+                    //setError(username);
+                    document.getElementById('message-error').innerHTML = 'Names should be alphabets';
+    
+    
+                } else {
+                    console.log("lName Ok");
+                    setSuccess(lName);
+                }
+    
+                if (emailIdValue === '') {
+    
+                    setError(emailId, 'Email is required');
+    
+                } else if (!isValidEmail(emailIdValue)) {
+    
+                    //alert('Provide a valid Email address')
+                    document.getElementById('message-error').innerHTML = 'Provide a valid email address';
+    
+                } else {
+                    console.log("email Ok");
+                    setSuccess(emailId);
+                }
+    
+                if (mobNoValue === '') {
+    
+                    setError(mobNo, 'Mobile No is required');
+    
+                } else if (!isValidMobNo(mobNoValue)) {
+    
+                    //alert('Provide a valid Email address')
+                    document.getElementById('message-error').innerHTML = 'Provide a valid mobile number';
+    
+                } else {
+                    console.log("Mobile oK")
+                    setSuccess(mobNo);
+                }
+    
+                if (passwordValue === '') {
+    
+                    setError(password, 'Password is required');
+    
+                } else if (!isValidPassword(passwordValue)) {
+    
+                    //alert('Provide a valid Email address')
+                    document.getElementById('message-error').innerHTML = 'Provide a strong password';
+                    //setError(password,'Provide a strong password');
+    
+                } else {
+                    console.log("Password Ok")
+                    setSuccess(password);
+                }
+    
+                if (confirmPasswordValue === '') {
+    
+                    setError(confirmPassword, 'Confirm Password is required');
+    
+                } else if (confirmPasswordValue !== passwordValue) {
+    
+                    document.getElementById('message-error').innerHTML = 'Passwords do not match';
+                } else {
+                    console.log("confirm Password ok");
+                    setSuccess(confirmPassword);
+                }
+    
+                //FOR SUBMISSION:
+    
+                const inputs = [fName, lName, emailId, mobNo, password, confirmPassword];
+    
+                if (inputs.every(input => input.parentElement.classList.contains('success'))) {
+                    form.submit();
+                    console.log("Form submission successful")
+                }
+    
+            };
+            /* Form Validation End */ </script>
+
+        <%- include('../partials/script.ejs') %>
         
         <%- include('../partials/footer.ejs') %>
 

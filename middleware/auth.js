@@ -1,31 +1,34 @@
-const isLogin=async(req,res,next)=>{
+// const User = require('../models/userModel')
 
-    try{
-        if(req.session.user){
 
-        }else{
-            res.redirect('/')
-        }
+// const isUserLoggedIn=async(req,res,next)=>{
+
+//     try{
+//         if(req.session.user){
+
+//         }else{
+//             res.redirect('/')
+//         }
         
-        next()
-    }catch(error){
-        console.log(error.message);
-    }
-}
+//         next()
+//     }catch(error){
+//         console.log(error.message);
+//     }
+// }
 
-const isLogout=async(req,res,next)=>{
+// const isLogout=async(req,res,next)=>{
 
-    try{
-        if(req.session.user){
-            res.redirect('/')
-        }
-        next()
-    }catch(error){
-        console.log(error.message);
-    }
-}
+//     try{
+//         if(req.session.user){
+//             res.redirect('/')
+//         }
+//         next()
+//     }catch(error){
+//         console.log(error.message);
+//     }
+// }
 
-module.exports={
-    isLogin,
-    isLogout
-}
+// module.exports={
+//     isLogin,
+//     isLogout
+// }

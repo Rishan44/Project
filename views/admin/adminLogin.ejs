@@ -106,12 +106,20 @@
                                 <div id="lg1" class="tab-pane active">
                                     <div class="login-form-container">
                                         <div class="login-register-form">
+                                            <div class="text-center text-danger">
+
+                                                <% if(typeof message !=='undefined' ){ %>
+                                                    <p class="">
+                                                        <%= message %>
+                                                    </p>
+                                                    <%} %>
+                                            </div>
                                             <form action="/admin/login" method="post">
                                                 <input type="email" name="email" placeholder="Enter Email">
                                                 <input type="password" name="password" placeholder="Password">
                                                 <div class="button-box">
                                                     <button type="submit">Login</button>
-                                                    <span><%= locals.message %></span>
+                                                    <!-- <span><%= //locals.message %></span> -->
                                                 </div>
                                             </form>
                                         </div>
@@ -124,7 +132,7 @@
                 </div>
             </div>
         </div>
-        <div class="subscribe-area bg-gray pt-115 pb-115">
+        <!-- <div class="subscribe-area bg-gray pt-115 pb-115">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-5 col-md-5">
@@ -150,8 +158,11 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <footer class="footer-area bg-gray pb-30">
+        </div> -->
+
+        <!-- ---- footer   ---              -->
+
+        <!-- <footer class="footer-area bg-gray pb-30">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-6 col-md-6">
@@ -196,7 +207,7 @@
                     </div>
                 </div>
             </div>
-        </footer>
+        </footer> -->
     </div>
 
     <!-- All JS is here

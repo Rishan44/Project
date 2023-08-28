@@ -6,15 +6,27 @@ const path = require('path')
 const userRoute=require("./routes/userRoute")
 const adminRoute= require('./routes/adminRoute'); 
 const app=express()
-
+const session = require("express-session")
+const {mongoConnect, secretKey} = require('./config/config')
 const nocache = require('nocache')
+const flash= require('express-flash')
+// mongoConnect()
+
 const PORT = process.env.PORT
 
 app.set('view engine', 'ejs')
 
+app.use(session({
+    secret: secretKey,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { maxAge: 30 * 24 * 60 * 1000}     //30 days
+}))
+
 app.use('/static',express.static(path.join(__dirname,'public')))
 app.use('/assets',express.static(path.join(__dirname,'/public/assets')));
 app.use(express.json())
+app.use(express.urlencoded({extended:false}))
 app.use(nocache())
 
 
@@ -22,5 +34,9 @@ app.use(nocache())
 
 app.use('/admin',adminRoute);
 app.use('/',userRoute);   
+
+
+
+
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`))

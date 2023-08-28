@@ -2,7 +2,11 @@ const mongoose = require('mongoose')
 
 const userSchema=new mongoose.Schema({
 
-    name:{
+    fname:{
+        type:String,
+        required:true
+    },
+    lname:{
         type:String,
         required:true
     },
@@ -18,11 +22,13 @@ const userSchema=new mongoose.Schema({
         type:String,
         required:true
     },
-    is_verified:{
-        type:Number,
-        default:0
+    isBlocked:{
+        type:Boolean,
+        default:false
     }
 
+},{
+    timestamps:true
 });
 
 

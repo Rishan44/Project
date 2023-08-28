@@ -70,13 +70,21 @@
                                     <h4> register </h4>
                                 </a>
                             </div>
+                            <div> 
+                                <h6 class="text-center"> <% if(typeof message !=='undefined' ){ %>
+                                    <p class="">
+                                        <%= message %>
+                                    </p>
+                                    <%} %> 
+                                    </h6>
+                               </div>
                             <div class="tab-content">
                                 <div id="lg1" class="tab-pane active">
                                     <div class="login-form-container">
                                         <div class="login-register-form">
-                                            <form action="#" method="post">
-                                                <input type="text" name="user-name" placeholder="Username">
-                                                <input type="password" name="user-password" placeholder="Password">
+                                            <form action="/login" method="post">
+                                                <input type="email" name="email" placeholder="Email" required>
+                                                <input type="password" name="password" placeholder="Password" required>
                                                 <div class="button-box">
                                                     <div class="login-toggle-btn">
                                                         <input type="checkbox">
@@ -85,7 +93,7 @@
                                                         <a href="#">Forgot Password?</a>
                                                     </div>
                                                     <button type="submit">Login</button>
-                                                    <a href="#lg2" style="margin-left: 162px;">No Account? Click Here To Register</a>
+                                                    <a href="/register" style="margin-left: 162px;">No Account? Click Here To Register</a>
                                                 </div>
                                             </form>
                                         </div>
@@ -94,13 +102,13 @@
                                 <div id="lg2" class="tab-pane">
                                     <div class="login-form-container">
                                         <div class="login-register-form">
-                                            <form action="" method="post">
-                                                <input type="text" name="first-name" placeholder="First Name">
-                                                <input type="text" name="last-name" placeholder="Last Name">
-                                                <input name="user-email" placeholder="Email" type="email">
-                                                <input name="user-mobile-number" placeholder="Mobile Number" type="tel">
-                                                <input type="password" name="user-password" placeholder="Password">
-                                                <input type="confirm_password" name="user-confirm_password" placeholder="Confirm Password">
+                                            <form action="/register" method="post">
+                                                <input type="text" name="fname" placeholder="First Name" required>
+                                                <input type="text" name="lname" placeholder="Last Name" required>
+                                                <input name="email" placeholder="Email" type="email" required>
+                                                <input name="mobile" placeholder="Mobile Number" type="tel" required>
+                                                <input type="password" name="password" placeholder="Password" required>
+                                                <input type="password" name="confirmPassword" placeholder="Confirm Password" required>
                                                 <div class="button-box">
                                                     <button type="submit">Register</button>
                                                 </div>
@@ -114,6 +122,10 @@
                 </div>
             </div>
         </div>
+
+        
+
+        <%- include('../partials/script.ejs') %>
         
         <%- include('../partials/footer.ejs') %>
 
