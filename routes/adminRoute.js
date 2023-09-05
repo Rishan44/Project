@@ -61,5 +61,6 @@ adminRoute.get('/products/editProduct/:id',productController.loadEditProduct)
 adminRoute.post('/products/editProduct',upload.array('product',3),productController.postEditProduct)
 adminRoute.get('/products/deleteProduct/:id',productController.deleteProduct)
 
+adminRoute.get('/products/imageDelete/:id',productController.deleteImage)
 
 module.exports = adminRoute

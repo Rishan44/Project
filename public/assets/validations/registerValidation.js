@@ -1,11 +1,11 @@
 
 
-const fnameError = document.getElementById("fnameErr")
-const lnameError = document.getElementById("lnameErr")
-const mobileError = document.getElementById("mobileErr")
-const emailError = document.getElementById("emailErr")
-const passwordError = document.getElementById("passwordErr")
-const cPasswordError = document.getElementById("confirmPasswordErr")
+const fnameError = document.getElementById("fname-input")
+const lnameError = document.getElementById("lname-input")
+const mobileError = document.getElementById("mobno-input")
+const emailError = document.getElementById("email-input")
+const passwordError = document.getElementById("password-input")
+const cPasswordError = document.getElementById("confirmPassword-input")
 const dobErr = document.getElementById('dobErr')
 
 

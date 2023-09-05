@@ -10,7 +10,7 @@ const loadProducts = async(req,res,next)=>{
 
         res.render('products',{productData,page:'Products'})
     } catch (error) {
-        next(error)
+        console.log(error);
     }
 }
 
@@ -139,8 +139,10 @@ const loadShop = async(req,res)=>{
     try {
         
         const isLoggedIn = Boolean(req.session.userId);
-
+        
         productData = await Products.find({}).populate('category')
+        
+
         res.render('shop',{productData,isLoggedIn,page:'Shop'})
     } catch (error) {
        console.log(error.message); 
@@ -154,22 +156,55 @@ const loadProductOverview = async(req,res,next)=>{
         const isLoggedIn = Boolean(userId)
         const pdtData = await Products.findById({_id:id})
 
+        let isPdtExistInCart = false;
 
-        // if(userId){
-        //     const userData= await User.findById({_id:userId})
+        if(userId){
+            const userData= await User.findById({_id:userId})
             
-        //     userData.cart.forEach((pdt) =>{
-        //         if(pdt.productId == id){
-        //             isPdtExistInCart = true
-        //         }
-        //     })
+            userData.cart.forEach((pdt) =>{
+                if(pdt.productId == id){
+                    isPdtExistInCart = true
+                }
+            })
 
-        // }
-        res.render('productOverview',{pdtData, parentPage:'Shop',page:'Product Overview',isLoggedIn})
+        }
+        res.render('productOverview1',{pdtData, parentPage:'Shop',page:'Product Overview',isLoggedIn,isPdtExistInCart})
     } catch (error) {
         console.log(error.message);
     }
 }
+
+const deleteImage = async(req,res, next) => {
+    try {
+        const id = req.params.id;
+        const imageURL = req.query.imageURL;
+
+        await Products.findOneAndUpdate( { _id: id }, {$pull:{ images : imageURL }})
+
+
+        console.log('imageURL :  '+imageURL+'type :'+typeof imageURL);
+
+        const imgFolder = path.join(__dirname,'../public/assets/images/product')
+
+        const files = fs.readdirSync(imgFolder);
+
+        for (const file of files) {
+
+            if(file === imageURL){
+                const filePath = path.join(imgFolder, file);
+                fs.unlinkSync(filePath);
+                break;
+            }
+        }
+        
+        res.redirect(`/admin/products/editProduct/${id}`);
+
+    } catch (error) {
+                next(error);
+    }
+}
+
+
 
 module.exports ={
     loadProducts,
@@ -179,5 +214,6 @@ module.exports ={
     deleteProduct,
     postEditProduct,
     loadShop,
+    deleteImage,
     loadProductOverview
 }

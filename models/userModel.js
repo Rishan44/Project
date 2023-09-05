@@ -14,6 +14,28 @@ const userSchema=new mongoose.Schema({
         type:String,
         required:true
     },
+    cart:[{
+        productId:{
+            type:mongoose.Schema.Types.ObjectId,
+            ref:'Products'
+        },
+        quantity:{
+            type:Number,
+            default:1
+        },
+        productPrice:{
+            type:Number,
+            required:true
+        },
+        discountPrice:{
+            type:Number,
+            required:true
+        }
+    }],
+    wishlist:[{
+        type : mongoose.Schema.Types.ObjectId,
+        ref: 'Products'
+    }],
     mobile:{
         type:Number,
         required:true

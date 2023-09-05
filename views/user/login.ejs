@@ -1,5 +1,27 @@
 <%- include('../partials/head.ejs') %>
 
+
+<style>
+.password-container {
+    position: relative;
+    display: inline-block; /* Ensure the container only takes the width of its contents */
+}
+
+.password-input {
+    padding-right: 40px; /* Adjust this value to create space for the icon */
+    width: 100%; /* Make the input take up all available space */
+    box-sizing: border-box; /* Include padding and border in the input's total width */
+}
+
+.eye-icon {
+    position: absolute;
+    top: 50%;
+    right: 10px; /* Adjust this value to control the icon's position */
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+</style>
 <%- //include('../partials/userHeader.ejs') %>
 
 
@@ -52,7 +74,7 @@
                         <li>
                             <a href="/">Home</a>
                         </li>
-                        <li class="active">login - register </li>
+                        <li class="active">login </li>
                     </ul>
                 </div>
             </div>
@@ -66,25 +88,33 @@
                                 <a class="active" data-toggle="tab" href="#lg1">
                                     <h4> login </h4>
                                 </a>
-                                <a data-toggle="tab" href="#lg2">
+                                <!-- <a data-toggle="tab" href="#lg2">
                                     <h4> register </h4>
-                                </a>
+                                </a> -->
                             </div>
-                            <div> 
-                                <h6 class="text-center"> <% if(typeof message !=='undefined' ){ %>
-                                    <p class="">
-                                        <%= message %>
-                                    </p>
-                                    <%} %> 
-                                    </h6>
-                               </div>
+                            
+                                
                             <div class="tab-content">
-                                <div id="lg1" class="tab-pane active">
+                                <div  class="tab-pane active">
                                     <div class="login-form-container">
-                                        <div class="login-register-form">
-                                            <form action="/login" method="post">
-                                                <input type="email" name="email" placeholder="Email" required>
-                                                <input type="password" name="password" placeholder="Password" required>
+                                        <div class="text-center text-danger">
+                                            <% if(typeof message !=="undefined"){%>
+                                               <p class="" style="color:red">
+                                                    <%= message %>
+                                               </p>
+                                            <%}%>
+                                     </div>
+                                        <div class="login-register-form"  >
+                                            <form action="/login" method="post" id='submit-form' >
+                                                <input type="email" name="email" placeholder="Email" id="email-input">
+                                                <div class="password-container w-100">
+                                                    <input type="password" name="password" placeholder="Password" id="password-input" class="password-input">
+                                                    <i class="bi bi-eye-slash-fill eye-icon top:24px;" style="top:24px"  id="password-toggle"></i>
+                                                </div>
+                                                
+                                               
+
+                                                <div id="message-error" class="text-center text-danger " style="font-weight: bold;"></div>
                                                 <div class="button-box">
                                                     <div class="login-toggle-btn">
                                                         <input type="checkbox">
@@ -92,30 +122,32 @@
                                                         
                                                         <a href="#">Forgot Password?</a>
                                                     </div>
-                                                    <button type="submit">Login</button>
+                                                    
+                                                    <button type="submit" >Login</button>
                                                     <a href="/register" style="margin-left: 162px;">No Account? Click Here To Register</a>
                                                 </div>
                                             </form>
                                         </div>
                                     </div>
                                 </div>
-                                <div id="lg2" class="tab-pane">
+                                <!-- <div id="lg2" class="tab-pane">
                                     <div class="login-form-container">
                                         <div class="login-register-form">
-                                            <form action="/register" method="post">
-                                                <input type="text" name="fname" placeholder="First Name" required>
-                                                <input type="text" name="lname" placeholder="Last Name" required>
-                                                <input name="email" placeholder="Email" type="email" required>
-                                                <input name="mobile" placeholder="Mobile Number" type="tel" required>
-                                                <input type="password" name="password" placeholder="Password" required>
-                                                <input type="password" name="confirmPassword" placeholder="Confirm Password" required>
+                                            <form action="/register" method="post" id="submit-form">
+                                                <input type="text" name="fname" placeholder="First Name" id="fname-input">
+                                                <input type="text" name="lname" placeholder="Last Name" id="lname-input" >
+                                                <input name="email" placeholder="Email" type="email" id="email-input">
+                                                <input name="mobile" placeholder="Mobile Number" type="tel" id="mobno-input">
+                                                <input type="password" name="password" placeholder="Password" id="password-input">
+                                                <input type="password" name="confirmPassword" placeholder="Confirm Password" id="confirmPassword-input">
+                                                <div id="message-error" class="text-danger"></div>
                                                 <div class="button-box">
-                                                    <button type="submit">Register</button>
+                                                    <button type="submit"">Register</button>
                                                 </div>
                                             </form>
                                         </div>
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </div>
@@ -124,6 +156,215 @@
         </div>
 
         
+        <script>
+
+            /* Form Validation Start */
+    
+            const form = document.getElementById('submit-form');
+            // const fName = document.getElementById('fname-input');
+            // const lName = document.getElementById('lname-input');
+            const emailId = document.getElementById('email-input');
+            // const mobNo = document.getElementById('mobno-input');
+            const password = document.getElementById('password-input');
+            // const confirmPassword = document.getElementById('confirmPassword-input');
+    
+    
+    
+            form.addEventListener('submit', e => {
+    
+    
+                e.preventDefault();
+                validateInput();
+            });
+    
+            const setError = (element, message) => {
+    
+                const inputControl = element.parentElement;
+                // const errorDisplay = inputControl.querySelector('.error');
+                // errorDisplay.innerText=message;
+    
+                element.placeholder = message;
+                // fName.style.border = '1.5px solid red';
+                // lName.style.border = '1.5px solid red';
+                emailId.style.border = '1.5px solid red';
+                // mobNo.style.border = '1.5px solid red';
+                password.style.border = '1.5px solid red';
+                // confirmPassword.style.border = '1.5px solid red';
+                inputControl.classList.add('error');
+                inputControl.classList.remove('success');
+    
+            };
+    
+            const setSuccess = element => {
+    
+                const inputControl = element.parentElement;
+                // const errorDisplay= inputControl.querySelector('.error');
+                // errorDisplay.innerText='';
+                element.placeholder = '';
+                inputControl.classList.add('success');
+                inputControl.classList.remove('error');
+            };
+    
+            // const isValidFName = fName => {
+    
+            //     const rename = /^[a-zA-Z]/;
+            //     return rename.test(String(fName));
+            // };
+    
+            // const isValidLName = lName => {
+    
+            //     const rename = /^[a-zA-Z]/;
+            //     return rename.test(String(lName));
+            // };
+    
+            const isValidEmail = emailId => {
+    
+                const re = /^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$/;
+                return re.test(String(emailId).toLowerCase());
+            };
+    
+            // const isValidMobNo = mobNo => {
+    
+            //     const re = /^[0-9]{10}$/;
+            //     return re.test(mobNo);
+            // };
+    
+            const isValidPassword = password => {
+                // Regular expression to validate password
+                // The password must contain at least 8 characters, including at least one uppercase letter, one lowercase letter, and one digit.
+                const re = /^[a-zA-Z\d]{8,}$/;  /* /^(?=.[a-z])(?=.[A-Z])(?=.\d)[a-zA-Z\d]{8,}$/ **/
+                return re.test(password);
+            };
+    
+            // const isValidConfirmPassword = confirmPassword => {
+    
+            //     return confirmPassword === isValidPassword;
+            // }
+    
+            const validateInput = () => {
+                console.log("Entered to validate input");
+                // const firstNameValue = fName.value.trim();
+                // const lastNameValue = lName.value.trim();
+                const emailIdValue = emailId.value.trim();
+                // const mobNoValue = mobNo.value.trim();
+                const passwordValue = document.getElementById('password-input').value.trim();
+                // const confirmPasswordValue = document.getElementById('confirmPassword-input').value.trim();
+    
+    
+                // if (firstNameValue === '') {
+    
+                //     setError(fName, 'First Name is required');
+    
+                // } else if (!isValidFName(firstNameValue)) {
+                //     //setError(username);
+                //     document.getElementById('message-error').innerHTML = 'Names should be alphabets';
+    
+    
+                // } else {
+                //     console.log("fName Ok");
+                //     setSuccess(fName);
+                // }
+    
+                // if (lastNameValue === '') {
+    
+                //     setError(lName, 'Last Name is required');
+    
+                // } else if (!isValidLName(lastNameValue)) {
+                //     //setError(username);
+                //     document.getElementById('message-error').innerHTML = 'Names should be alphabets';
+    
+    
+                // } else {
+                //     console.log("lName Ok");
+                //     setSuccess(lName);
+                // }
+    
+                if (emailIdValue === '') {
+    
+                    setError(emailId, 'Email is required');
+    
+                } else if (!isValidEmail(emailIdValue)) {
+    
+                    //alert('Provide a valid Email address')
+                    document.getElementById('message-error').innerHTML = 'Provide a valid email address';
+    
+                } else {
+                    console.log("email Ok");
+                    setSuccess(emailId);
+                }
+    
+                // if (mobNoValue === '') {
+    
+                //     setError(mobNo, 'Mobile No is required');
+    
+                // } else if (!isValidMobNo(mobNoValue)) {
+    
+                //     //alert('Provide a valid Email address')
+                //     document.getElementById('message-error').innerHTML = 'Provide a valid mobile number';
+    
+                // } else {
+                //     console.log("Mobile oK")
+                //     setSuccess(mobNo);
+                // }
+    
+                if (passwordValue === '') {
+    
+                    setError(password, 'Password is required');
+    
+                } else if (!isValidPassword(passwordValue)) {
+    
+                    //alert('Provide a valid Email address')
+                    document.getElementById('message-error').innerHTML = 'Provide a valid password';
+                    //setError(password,'Provide a strong password');
+                    
+                    
+                }
+                 else {
+                    console.log("Password Ok")
+                    setSuccess(password);
+                }
+    
+                // if (confirmPasswordValue === '') {
+    
+                //     setError(confirmPassword, 'Confirm Password is required');
+    
+                // } else if (confirmPasswordValue !== passwordValue) {
+    
+                //     document.getElementById('message-error').innerHTML = 'Passwords do not match';
+                // } else {
+                //     console.log("confirm Password ok");
+                //     setSuccess(confirmPassword);
+                // }
+    
+                //FOR SUBMISSION:
+    
+                const inputs = [ emailId, password];
+    
+                if (inputs.every(input => input.parentElement.classList.contains('success'))) {
+                    form.submit();
+                    console.log("Form submission successful")
+                }
+    
+            };
+            /* Form Validation End */ 
+
+
+                /** Password Seeker Start **/
+    const togglePassword = document.querySelector('#password-toggle');
+    const passwordInput = document.querySelector('#password-input');
+
+    togglePassword.addEventListener('click', function () {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+
+        this.classList.toggle('bi-eye-fill');
+        this.classList.toggle('bi-eye-slash-fill');
+
+    });
+
+    /** Password Seeker End **/
+
+            </script>
 
         <%- include('../partials/script.ejs') %>
         

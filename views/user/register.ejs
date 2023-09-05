@@ -70,19 +70,21 @@
                                     <h4> Login </h4>
                                 </a> -->
                             </div>
-                           <div> 
-                            <h6 class="text-center"> <% if(typeof message !=='undefined' ){ %>
-                                <p class="">
-                                    <%= message %>
-                                </p>
-                                <%} %> 
-                                </h6>
-                           </div>
                             <div class="tab-content">
                                 <div class="tab-pane active">
                                     <div class="login-form-container">
+                                        <div class="text-center text-danger">
+
+                                            <% if(typeof message !=='undefined' ){ %>
+                                                <p class="" style="    color: red;
+                                                margin-bottom: 5px;">
+                                                    <%= message %>
+                                                </p>
+                                                <%} %>
+                                        </div>
                                         <div class="login-register-form">
                                             
+                                           
                                             <form action="/register" method="post" id="submit-form">
                                                 <input type="text" name="fname" placeholder="First Name" id="fname-input">
                                                 <input type="text" name="lname" placeholder="Last Name" id="lname-input" >
@@ -90,9 +92,9 @@
                                                 <input name="mobile" placeholder="Mobile Number" type="tel" id="mobno-input">
                                                 <input type="password" name="password" placeholder="Password" id="password-input">
                                                 <input type="password" name="confirmPassword" placeholder="Confirm Password" id="confirmPassword-input">
-                                                <div id="message-error" class="text-danger"></div>
+                                                <div id="message-error" class="text-center text-danger " style="font-weight: bold;"></div>
                                                 <div class="button-box">
-                                                    <button type="submit"">Register</button>
+                                                    <button type="submit" id="submit-form">Register</button>
                                                     
                                                 </div>
                                             </form>
@@ -131,7 +133,7 @@
         </div>
 
 
-
+<!-- <script src="/validations/registerValidation.js"></script> -->
 
 
         <script>
