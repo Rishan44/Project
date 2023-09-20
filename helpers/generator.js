@@ -17,7 +17,7 @@ const securePassword = async(password) =>{
         return hashedPassword
     } catch (error) {
         console.log(error);
-    }
+    } 
 }
 
 

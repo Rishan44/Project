@@ -108,9 +108,26 @@
                                                             </a>
                                                             <span class="pro-badge left bg-red">-20%</span>
                                                             <div class="product-action-2 tooltip-style-2">
-                                                                <button title="Wishlist"><i class="icon-heart"></i></button>
-                                                                <button title="Quick View" data-toggle="modal" data-target="#exampleModal"><i class="icon-size-fullscreen icons"></i></button>
+
+                                                                
+                                                                    
+                                                                    <% 
+                                                                    if(wishlist && wishlist.length && wishlist.includes(productData[i]._id)){
+                                                                        %> 
+                                                                        <button title="Wishlist"> <a class="bi bi-heart-fill text-danger" href="/removeWishlistItem/<%= productData[i]._id %>?returnPage=shop"></a></button>
+                                                                        
+                                                                        <% }else{ %>
+                                                                            
+                                                                            <button title="Wishlist"> <a class="bi bi-heart" href="/addToWishlist/<%= productData[i]._id %>?returnPage=shop"></a></button>
+                                                                            <% } %>
+                                                               
+                                                                
+                                                                <!-- <button title="Wishlist"> <a class="icon-heart" ></a><i class=""></i></button> -->
+
+
+                                                                <!-- <button title="Quick View" data-toggle="modal" data-target="#exampleModal"><i class="icon-size-fullscreen icons"></i></button> -->
                                                                 <!-- <button title="Compare"><i class="icon-refresh"></i></button> -->
+  
                                                             </div>
                                                         </div>
                                                         <div class="product-content-wrap-2 text-center">
@@ -916,10 +933,18 @@
                             </div>
                             <div class="pro-pagination-style text-center mt-10">
                                 <ul>
-                                    <li><a class="prev" href="#"><i class="icon-arrow-left"></i></a></li>
-                                    <li><a class="active" href="#">1</a></li>
+                                    <% for(let i=1;i<= pageCount;i++){
+                                         %> 
+                                         <li><a class="" href="/shop?page=<%= i %>&sortValue=<%= sortValue %>&category=<%= category %>&brand=<%= brand %>&minPrice=<%= minPrice %>&maxPrice=<%= maxPrice %>&search=<%= search %>"><%= i %></a></li>
+                                         <% 
+                                    }
+                                    %>
+
+
+                                   
+                                    <!-- <li><a class="active" href="#">1</a></li>
                                     <li><a href="#">2</a></li>
-                                    <li><a class="next" href="#"><i class="icon-arrow-right"></i></a></li>
+                                    <li><a class="next" href="#"><i class="icon-arrow-right"></i></a></li> -->
                                 </ul>
                             </div>
                         </div>
@@ -929,41 +954,122 @@
                             <div class="sidebar-widget mb-40">
                                 <h4 class="sidebar-widget-title">Search </h4>
                                 <div class="sidebar-search">
-                                    <form class="sidebar-search-form" action="#">
-                                        <input type="text" placeholder="Search here...">
-                                        <button>
+                                    <form class="sidebar-search-form" role="search">
+                                        <input type="search" placeholder="Search here..." name="search">
+                                        <button type="submit">
                                             <i class="icon-magnifier"></i>
                                         </button>
                                     </form>
                                 </div>
                             </div>
+                            <% if(removeFilter==='true' ) { %>
+                                <a href="/shop?page=1" class="bg-danger px-3 py-1 text-white text-decoration-none"
+                                    style="cursor: pointer; padding: 10px 40px 10px 40px !important;">
+                                    Remove Filters&nbsp;<i class="bi bi-x-square"></i>
+                                </a>
+                                <% } %>
+
                             <div class="sidebar-widget shop-sidebar-border mb-35 pt-40">
                                 <h4 class="sidebar-widget-title">Categories </h4>
                                 <div class="shop-catigory">
                                     <ul>
-                                        <li><a href="shop.html">T-Shirt</a></li>
+                                        <!-- <li><a href="shop.html">T-Shirt</a></li>
                                         <li><a href="shop.html">Shoes</a></li>
                                         <li><a href="shop.html">Clothing </a></li>
                                         <li><a href="shop.html">Women </a></li>
                                         <li><a href="shop.html">Baby Boy </a></li>
-                                        <li><a href="shop.html">Accessories </a></li>
+                                        <li><a href="shop.html">Accessories </a></li> -->
+                                        <% 
+                                        categoryNames.forEach((category) => {
+                                            %>
+                                            <li>
+                                                <a href="?category=<%= category._id %>&sortValue=<%= sortValue %>
+                                                        &brand=<%= brand %>&minPrice=<%= minPrice %>&maxPrice=<%= maxPrice %>
+                                                        &search=<%= search %>">
+                                                    <%= category.name %>
+                                                </a>
+                                            </li>
+                                            <%  
+                                        })
+                                        %>
+
                                     </ul>
                                 </div>
                             </div>
+
+                            <div class="sidebar-widget shop-sidebar-border mb-35 pt-40">
+                                <h4 class="sidebar-widget-title">Brands </h4>
+                                <div class="shop-catigory">
+                                    <ul>
+                                        <!-- <li><a href="shop.html">T-Shirt</a></li>
+                                        <li><a href="shop.html">Shoes</a></li>
+                                        <li><a href="shop.html">Clothing </a></li>
+                                        <li><a href="shop.html">Women </a></li>
+                                        <li><a href="shop.html">Baby Boy </a></li>
+                                        <li><a href="shop.html">Accessories </a></li> -->
+                                        <% 
+                                                    brands.forEach((brand) => {
+                                                        %>
+                                                        <li>
+                                                            <a href="?brand=<%= brand._id %>&sortValue=<%= sortValue %>
+                                                                &category=<%= category %>&minPrice=<%= minPrice %>&maxPrice=<%= maxPrice %>
+                                                                &search=<%= search %>">
+                                                                <%= brand._id %>
+                                                            </a>
+                                                        </li>
+                                                        <%  
+                                                    })
+                                                    %>
+                                    </ul>
+                                </div>
+                            </div>
+
                             <div class="sidebar-widget shop-sidebar-border mb-40 pt-40">
                                 <h4 class="sidebar-widget-title">Price Filter </h4>
                                 <div class="price-filter">
-                                    <span>Range:  $100.00 - 1.300.00 </span>
-                                    <div id="slider-range"></div>
+                                    <!-- <span>Range:  $100.00 - 1.300.00 </span>
+                                    <div id="slider-range"></div> -->
                                     <div class="price-slider-amount">
                                         <div class="label-input">
-                                            <input type="text" id="amount" name="price" placeholder="Add Your Price" />
+                                            <ul>
+                                                <li>
+                                                    <a href="?minPrice=0&maxPrice=999&sortValue=<%= sortValue %>&category=<%= category %>&brand=<%= brand %>&search=<%= search %>">
+                                                        &#8377; 0 - &#8377; 999
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="?minPrice=1000&maxPrice=2999&sortValue=<%= sortValue %>&category=<%= category %>&brand=<%= brand %>&search=<%= search %>">
+                                                        &#8377; 1000 - &#8377; 2999
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="?minPrice=3000&maxPrice=4999&sortValue=<%= sortValue %>&category=<%= category %>&brand=<%= brand %>&search=<%= search %>">
+                                                        &#8377; 3000 - &#8377; 4999
+                                                    </a>
+                                                </li>
+                                                <!-- <li>
+                                                    <a href="?minPrice=5000&maxPrice=6999&sortValue=<%= sortValue %>&category=<%= category %>&brand=<%= brand %>&search=<%= search %>">
+                                                        &#8377; 5000 - &#8377; 6999
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="?minPrice=7000&maxPrice=9999&sortValue=<%= sortValue %>&category=<%= category %>&brand=<%= brand %>&search=<%= search %>">
+                                                        &#8377; 7000 - &#8377; 9999
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="?minPrice=10000&sortValue=<%= sortValue %>&category=<%= category %>&brand=<%= brand %>&search=<%= search %>">
+                                                        &#8377; 10000+
+                                                    </a>
+                                                </li> -->
+                                            </ul>
+                                            <!-- <input type="text" id="amount" name="price" placeholder="Add Your Price" /> -->
                                         </div>
-                                        <button type="button">Filter</button>
+                                        <!-- <button type="button">Filter</button> -->
                                     </div>
                                 </div>
                             </div>
-                            <div class="sidebar-widget shop-sidebar-border mb-40 pt-40">
+                            <!-- <div class="sidebar-widget shop-sidebar-border mb-40 pt-40">
                                 <h4 class="sidebar-widget-title">Refine By </h4>
                                 <div class="sidebar-widget-list">
                                     <ul>
@@ -987,8 +1093,8 @@
                                         </li>
                                     </ul>
                                 </div>
-                            </div>
-                            <div class="sidebar-widget shop-sidebar-border mb-40 pt-40">
+                            </div> -->
+                            <!-- <div class="sidebar-widget shop-sidebar-border mb-40 pt-40">
                                 <h4 class="sidebar-widget-title">Size </h4>
                                 <div class="sidebar-widget-list">
                                     <ul>
@@ -1018,8 +1124,8 @@
                                         </li>
                                     </ul>
                                 </div>
-                            </div>
-                            <div class="sidebar-widget shop-sidebar-border mb-40 pt-40">
+                            </div> -->
+                            <!-- <div class="sidebar-widget shop-sidebar-border mb-40 pt-40">
                                 <h4 class="sidebar-widget-title">Color </h4>
                                 <div class="sidebar-widget-list">
                                     <ul>
@@ -1049,8 +1155,8 @@
                                         </li>
                                     </ul>
                                 </div>
-                            </div>
-                            <div class="sidebar-widget shop-sidebar-border pt-40">
+                            </div> -->
+                            <!-- <div class="sidebar-widget shop-sidebar-border pt-40">
                                 <h4 class="sidebar-widget-title">Popular Tags</h4>
                                 <div class="tag-wrap sidebar-widget-tag">
                                     <a href="#">Clothing</a>
@@ -1059,7 +1165,7 @@
                                     <a href="#">Women</a>
                                     <a href="#">Fashion</a>
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                 </div>

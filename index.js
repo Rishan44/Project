@@ -10,6 +10,7 @@ const session = require("express-session")
 const {mongoConnect, secretKey} = require('./config/config')
 const nocache = require('nocache')
 const flash= require('express-flash')
+const { err404, err500 } = require('./middleware/errorHandler')
 // mongoConnect()
 
 const PORT = process.env.PORT
@@ -37,6 +38,9 @@ app.use('/',userRoute);
 
 
 
+app.set('views','./views/errors');
 
+app.use(err404)
+app.use(err500)
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`))

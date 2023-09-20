@@ -139,11 +139,147 @@ const loadShop = async(req,res)=>{
     try {
         
         const isLoggedIn = Boolean(req.session.userId);
-        
-        productData = await Products.find({}).populate('category')
+
+        let page = 1 
+        if(req.query.page){
+            page = req.query.page
+        }
+
+        let limit = 9;
+
+        let minPrice = 1;
+        let maxPrice = Number.MAX_VALUE;
+
+        if(req.query.minPrice && parseInt(req.query.minPrice)){
+            minPrice = parseInt(req.query.minPrice)
+        }
+        if(req.query.maxPrice && parseInt(req.query.maxPrice)){
+            maxPrice = parseInt(req.query.maxPrice)
+        }
+
+        let search = ''
+        if(req.query.search){
+            search = req.query.search
+        }
+
+        //finding all categories that matches the search query
+        async function getCategoryIds(search){
+            const categories = await Categories.find(
+                {
+                    name:{
+                        $regex: '.*' +search+'.*',
+                        $options:'i'
+                    }
+                }
+            )
+            return categories.map(category => category._id)
+        }
+
+        //Declaring a common query object to find products
+        const  query = {
+            isListed:true,
+            $or:[
+                {
+                    name:{
+                        $regex: '.*' +search+ '.*',
+                        $options: 'i'
+                    }
+                },
+                {
+                    brand:{
+                        $regex: '.*' +search + '.*',
+                        $options:'i'
+                    }
+                }
+            ],
+            price:{
+                $gte:minPrice,
+                $lte:maxPrice
+            }
+        }
+
+        if(req.query.search){
+            search = req.query.search;
+            query.$or.push({
+                'category' : {
+                    $in: await getCategoryIds(search)
+                }
+            });
+        };
+
+        //add category to query to filter based on category
+        if(req.query.category){
+            query.category = req.query.category
+        };
+
+        //add category to query to filter based on brand
+        if(req.query.brand){
+            query.brand = req.query.brand
+        };
+
+        let sortValue = 1;
+        if(req.query.sortValue){
+            sortValue = req.query.sortValue;
+        }
+
+        let productData;
+        if(sortValue == 1){
+            productData = await Products.find(query).populate('category').sort({createdAt:-1}).limit(limit*1).skip((page - 1)*limit);
+
+        }else{
+            productData = await Products.find(query).populate('category');
+
+            productData = productData.slice((page - 1)*limit,page *limit);
+        }
+
+        const categoryNames = await Categories.find({});
+        const brands = await Products.aggregate([{
+            $group:{
+                _id :'$brand'
+            }
+        }]);
+
+        let totalProductsCount = await Products.find(query).count()
+        let pageCount = Math.ceil(totalProductsCount / limit);
+
+        let removeFilter  ='false'
+        if(req.query && !req.query.page){
+            removeFilter  ='true'
+        };
+
+
+        // productData = await Products.find({}).populate('category')
         
 
-        res.render('shop',{productData,isLoggedIn,page:'Shop'})
+        let userData;
+        let wishlist;
+        let cart;
+
+        if(req.session.userId){
+            userData = await User.findById({_id:req.session.userId})
+            wishlist = userData.wishlist
+            cart = userData.cart.map(item => item.productId.toString())
+        }
+
+        res.render('shop',{
+            productData,
+            userId:req.session.userId,
+            isLoggedIn,
+            page:'Shop',
+            wishlist,
+            cart,
+            categoryNames,
+            brands,
+            pageCount,
+            currentPage:page,
+            sortValue,
+            category:req.query.category,
+            minPrice:req.query.minPrice,
+            maxPrice:req.query.maxPrice,
+            brand:req.query.brand,
+            search:req.query.search,
+            removeFilter
+        })
     } catch (error) {
        console.log(error.message); 
     }

@@ -4,7 +4,7 @@ const Users = require('../models/userModel')
 const loadAddAddress = async(req,res,next) => {
     try {
         const returnPage = req.query.returnPage
-        console.log('return page:'+returnPage);
+        //console.log('return page:'+returnPage);
         res.render('addAddress',{isLoggedIn:true,page:'Add Address', parentPage:'profile',returnPage})
     } catch (error) {
         console.log(error.message);

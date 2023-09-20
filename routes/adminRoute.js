@@ -7,33 +7,23 @@ const adminController=require('../controller/adminController')
 const productController = require('../controller/productController')
 const upload = require('../config/multer')
 const categoryController = require('../controller/categoryController')
+const orderController = require('../controller/orderController')
 const path = require('path')
+const { isAdminLoggedIn, isAdminLoggedOut } = require('../middleware/auth')
 // const nocache=require('nocache')
 
 
-// adminRoute.use(nocache())
 
-// adminRoute.use(express.json());
-// adminRoute.use(express.urlencoded({extended:true}))
 
-// adminRoute.use(
-//     session({
-//         secret:randomUUID(),
-//         resave:false,
-//         saveUninitialized:true,
-//     })
-// )
-
-// adminRoute.set('view engine','ejs')
 adminRoute.set('views','./views/admin')
 
-const auth=require('../middleware/adminAuth')
+
 
 const { cache } = require('ejs')
 
 //Admin Login Handling
-adminRoute.get('/login',adminController.loadLogin);
-adminRoute.post('/login',adminController.postLogin)
+adminRoute.get('/login',isAdminLoggedOut ,adminController.loadLogin);
+adminRoute.post('/login',isAdminLoggedOut ,adminController.postLogin)
 adminRoute.post('/logout',adminController.adminLogout)
 
 
@@ -62,5 +52,11 @@ adminRoute.post('/products/editProduct',upload.array('product',3),productControl
 adminRoute.get('/products/deleteProduct/:id',productController.deleteProduct)
 
 adminRoute.get('/products/imageDelete/:id',productController.deleteImage)
+
+adminRoute.get('/ordersList',orderController.loadOrdersList)
+adminRoute.post('/changeOrderStatus',orderController.changeOrderStatus)
+adminRoute.get('/cancelOrder/:orderId',orderController.cancelOrder)
+adminRoute.get('/cancelSinglePrdt/:orderId/:pdtId',orderController.cancelSinglePdt)
+
 
 module.exports = adminRoute

@@ -125,13 +125,18 @@
         
                                                     </td>
                                                 </td>
+                                                <%  totalPrice += cartItems[i].productId.price*cartItems[i].quantity %>
                                                 <td class="product-subtotal" id="total<%= cartItems[i]._id %>" class="cart__price">&#8377;<%=cartItems[i].productId.price*cartItems[i].quantity  %></td>
+            
                                                 <td class="product-remove" >
                                                     <form action="/shoppingCart/removeItem/<%= cartItems[i].productId._id %>" method="post">
                                          <button type="submit"><i class="icon_close" ></i></button> 
                                                 </form>
                                                 </td>
                                             </tr>
+
+
+                                            
                                             
                                             <%  
                                         }
@@ -145,8 +150,9 @@
 
                                     <tr>
                                         <td>
+                                            
                                             <h5> <strong> Add items to the cart</strong> </h5>
-                                            <img src="/assets/images/pngwing.com.png" class="img-fluid" style="width: 372px; height: auto;" alt="Cart Empty Image">
+                                            <img src="/assets/images/pngwing.com.png" class="img-fluid" style="width: 372px; height: auto; " alt="Cart Empty Image">
                                         </td>
                                     </tr>
 
@@ -194,17 +200,20 @@
                                         <div class="cart-shiping-update">
                                             <a href="/shop">Continue Shopping</a>
                                         </div>
-                                        <form action="/shoppingCart/removeItem/<%= cartItems._id %>" method="post">
+                                        
+                                        <% if(cartItems.length>0){ %>
+                                    <form action="/shoppingCart/clearCart" method="post">
                                         <div class="cart-clear">
-                                            <!-- <button type="submit" >Update Cart</button> -->
-                                            <a href="">Clear Cart</a>
+                                            <button type="submit" >Clear Cart</button>
                                         </div>
                                     </form>
+                                    <% } %>
+
                                     </div>
                                 </div>
                             </div>
                   
-                        <div class="row">
+                        <!-- <div class="row">
                             <div class="col-lg-4 col-md-6">
                                 <div class="cart-tax">
                                     <div class="title-wrap">
@@ -261,24 +270,29 @@
                                         </form>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-lg-4 col-md-12">
-                                <div class="grand-totall">
-                                    <div class="title-wrap">
-                                        <h4 class="cart-bottom-title section-bg-gary-cart">Cart Total</h4>
+                            </div> -->
+                            
+                                
+                                <div class="col-lg-4 col-md-12">
+                                    <div class="grand-totall">
+                                        <div class="title-wrap">
+                                            <h4 class="cart-bottom-title section-bg-gary-cart">Cart Total</h4>
+                                        </div>
+                                        <!-- <h5>Total products <span>$260.00</span></h5> -->
+                                        <div class="total-shipping">
+                                            <h5>Total shipping   </h5>
+                                            <ul>
+                                                <!-- <li><input type="checkbox"> Cash On Delivery<span>$20.00</span></li> -->
+                                                <!-- <li><input type="checkbox"> Express <span>$30.00</span></li> -->
+                                            </ul>
+                                        </div>
+                                        <h4 class="grand-totall-title" >  Grand Total <span id="grandTotal">&#8377;<%=totalPrice  %></span></h4>
+                                        <a href="/shoppingCart/proceedToCheckout">Proceed to Checkout</a>
                                     </div>
-                                    <h5>Total products <span>$260.00</span></h5>
-                                    <div class="total-shipping">
-                                        <h5>Total shipping</h5>
-                                        <ul>
-                                            <li><input type="checkbox"> Standard <span>$20.00</span></li>
-                                            <li><input type="checkbox"> Express <span>$30.00</span></li>
-                                        </ul>
-                                    </div>
-                                    <h4 class="grand-totall-title">Grand Total <span>$260.00</span></h4>
-                                    <a href="#">Proceed to Checkout</a>
                                 </div>
-                            </div>
+                                
+        
+                            
                         </div>
                     </div>
                 </div>
@@ -349,6 +363,9 @@
         
                             $(`#total${spanID}`).html(`₹${res.data.totalSingle}`)
                             $(`#totalPrice`).html(`₹${res.data.totalPrice}`)
+                            $(`#grandTotal`).html(`₹${res.data.totalPrice}`)
+
+
                             $(`#totalDiscount`).html(`-₹${res.data.totalDiscount}`)
                             $(`#amount`).html(`₹${res.data.totalPrice - res.data.totalDiscount}`)
         
