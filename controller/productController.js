@@ -49,8 +49,8 @@ const addProductDetails = async(req,res,next)=>{
         if(check6) size.push(check6)
 
         const catData = await Categories.find({name:category})
-        console.log("category : "+category);
-        console.log("catData : "+catData);
+        // console.log("category : "+category);
+        // console.log("catData : "+catData);
         const prodData =await new Products({
             brand, name:productName, description, category:catData[0]._id,
             size,price,discountPrice:dprice, quantity , images,
@@ -111,13 +111,13 @@ const postEditProduct = async(req,res) => {
             for (let file of req.files) {
                 newImages.push(file.filename)
             }
-            console.log('id : '+id);
+            // console.log('id : '+id);
             await Products.findOneAndUpdate({ _id: id }, { $push: { images: { $each: newImages } } })
         }
 
-        console.log('category : '+category);
+        // console.log('category : '+category);
         const catData = await Categories.findOne({ name: category })
-        console.log(catData);
+        // console.log(catData);
         await Products.findByIdAndUpdate(
             { _id: id },
             {
@@ -135,7 +135,7 @@ const postEditProduct = async(req,res) => {
     }
 }
 
-const loadShop = async(req,res)=>{
+const loadShop = async(req,res,next)=>{
     try {
         
         const isLoggedIn = Boolean(req.session.userId);
@@ -145,7 +145,7 @@ const loadShop = async(req,res)=>{
             page = req.query.page
         }
 
-        let limit = 9;
+        let limit = 6;
 
         let minPrice = 1;
         let maxPrice = Number.MAX_VALUE;
@@ -229,6 +229,17 @@ const loadShop = async(req,res)=>{
         }else{
             productData = await Products.find(query).populate('category');
 
+            if(sortValue == 2){
+                //sorting in ascending order of price
+                productData.sort((a,b)=>{
+                    return a.price - b.price
+                })
+            }else if(sortValue == 3){
+                //sorting on descending order of price
+                productData.sort((a,b)=>{
+                    return b.price - a.price
+                })
+            }
             productData = productData.slice((page - 1)*limit,page *limit);
         }
 
@@ -281,7 +292,7 @@ const loadShop = async(req,res)=>{
             removeFilter
         })
     } catch (error) {
-       console.log(error.message); 
+       next(error); 
     }
 }
 

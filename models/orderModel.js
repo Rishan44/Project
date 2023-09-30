@@ -68,22 +68,22 @@ const orderSchema = mongoose.Schema({
                 'Pending Return Approval', 'Returned'],
         required: true
     },
-    // couponCode:{
-    //     type: String
-    // },
-    // couponDiscount:{
-    //     type: String,
-    //     required: function(){
-    //         return this.couponCode !== ''
-    //     }
-    // },
-    // couponDiscountType:{
-    //     type: String,
-    //     enum: ['Percentage', 'Fixed Amount'],
-    //     required: function(){
-    //         return this.couponCode !== ''
-    //     }
-    // }
+    couponCode:{
+        type: String
+    },
+    couponDiscount:{
+        type: String,
+        required: function(){
+            return this.couponCode !== ''
+        }
+    },
+    couponDiscountType:{
+        type: String,
+        enum: ['Percentage', 'Fixed Amount'],
+        required: function(){
+            return this.couponCode !== ''
+        }
+    }
 
 },
     {

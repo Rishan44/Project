@@ -4,6 +4,7 @@ const userRoute=express()
 const productController = require('../controller/productController')
 const addressController = require('../controller/addressController')
 const orderController =require('../controller/orderController')
+const couponController = require('../controller/couponController')
 const {isUserLoggedIn, isUserLoggedOut ,isUserBlocked} = require('../middleware/auth')
 
 userRoute.set('views', 'views/user')
@@ -29,10 +30,11 @@ userRoute.post('/validateOTP',isUserLoggedOut,userController.validateOTP)
 userRoute.post('/resendOTP',userController.resendOTP)
 
 //to check isUserLoggedIn after this route
-userRoute.use('/',isUserLoggedIn)
 
 userRoute.get('/shop',productController.loadShop)
 userRoute.get('/shop/productOverview1/:id',productController.loadProductOverview);
+
+userRoute.use('/',isUserLoggedIn)
 
 userRoute.get('/logout', userController.logoutUser);
 
@@ -49,6 +51,7 @@ userRoute.get('/addToWishlist/:productId',userController.addToWishlist)
 userRoute.get('/RemoveWishlistItem/:productId',userController.removeWishlistItem)
 
 userRoute.get('/orderSuccess',orderController.orderSuccess)
+userRoute.post('/verifyPayment',orderController.verifyPayment)
 
 
 //Profile management
@@ -70,9 +73,26 @@ userRoute.post('/profile/forgotPasswordVerification',userController.verifyOTPfor
 userRoute.get('/profile/resetPassword',userController.loadResetPassword)
 userRoute.post('/profile/resetPassword',userController.postResetPassword)
 
+userRoute.get('/profile/walletHistory',userController.loadWalletHistory)
+userRoute.post('/profile/addMoneyToWallet',userController.addMoneyToWallet)
+userRoute.post('/verifyWalletPayment',userController.verifyWalletPayment)
+
+
+
 
 userRoute.get('/profile/myOrders',orderController.loadMyOrders)
 userRoute.get('/viewOrderDetails/:orderId',orderController.loadViewOrderDetails)
+userRoute.get('/cancelOrder/:orderId',orderController.cancelOrder)
+userRoute.get('/cancelSinglePrdt/:orderId/:pdtId',orderController.cancelSinglePdt)
+userRoute.get('/returnOrder/:orderId',orderController.returnOrder)
+userRoute.get('/returnSinglePrdt/:orderId/:pdtId',orderController.returnSinglePdt)
+userRoute.get('/downloadInvoice/:orderId',orderController.loadInvoice)
+
+userRoute.post('/applyCoupon',couponController.applyCoupon)
+userRoute.get('/removeCoupon',couponController.removeCoupon)
+
+
+
 
 
 module.exports=userRoute

@@ -68,11 +68,30 @@
                             <div class="shop-topbar-left">
                                 <div class="view-mode nav">
                                     <a class="active" href="#shop-1" data-toggle="tab"><i class="icon-grid"></i></a>
-                                    <a href="#shop-2" data-toggle="tab"><i class="icon-menu"></i></a>
+                                    <!-- <a href="#shop-2" data-toggle="tab"><i class="icon-menu"></i></a> -->
                                 </div>
-                                <p>Showing 1 - 20 of 30 results </p>
+                                <!-- <p>Showing 1 - 20 of 30 results </p> -->
                             </div>
-                            <div class="product-sorting-wrapper">
+
+                            <div class="col text-right mr-2 my-2">
+
+                                <a class="text-dark <% if(sortValue == 1){ %> font-weight-bold <% } %>" 
+                                    href="?sortValue=1&category=<%=category  %>&brand=<%=brand  %>&minPrice=<%=minPrice  %>&maxPrice=<%=maxPrice  %>&search=<%=search  %>">
+                                    &nbsp;Latest&nbsp;
+                                </a> |
+    
+                                <a class="text-dark <% if(sortValue == 2){ %> font-weight-bold <% } %>" 
+                                    href="?sortValue=2&category=<%=category  %>&brand=<%=brand  %>&minPrice=<%=minPrice  %>&maxPrice=<%=maxPrice  %>&search=<%=search  %>">
+                                    &nbsp;Price Low to High&nbsp;
+                                </a> |
+    
+                                <a class="text-dark <% if(sortValue == 3){ %> font-weight-bold <% } %>" 
+                                    href="?sortValue=3&category=<%=category  %>&brand=<%=brand  %>&minPrice=<%=minPrice  %>&maxPrice=<%=maxPrice  %>&search=<%=search  %>">
+                                    &nbsp;Price High to Low&nbsp;
+                                </a>
+    
+                            </div>
+                            <!-- <div class="product-sorting-wrapper">
                                 <div class="product-shorting shorting-style">
                                     <label>View :</label>
                                     <select>
@@ -89,7 +108,7 @@
                                         <option value=""> price</option>
                                     </select>
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
                         <div class="shop-bottom-area">
                             <div class="tab-content jump">
@@ -144,7 +163,9 @@
                                                             </div> -->
                                                             <h3><a href="/shop/productOverview1"> <%= productData[i].name %></a></h3>
                                                             <div class="product-price-2">
-                                                                <span class="new-price">&#8377; <%= productData[i].discountPrice %></span>
+                                                                <% let currPrice  %>
+                                                                <%  currPrice = productData[i].price - productData[i].discountPrice  %>
+                                                                <span class="new-price">&#8377; <%= currPrice//productData[i].discountPrice %></span>
                                                                 <span class="old-price">&#8377; <%= productData[i].price %></span>
                                                             </div>
                                                         </div>
@@ -161,7 +182,7 @@
                                                             </div> -->
                                                             <h3><a href="product-details.html"><%= productData[i].name %></a></h3>
                                                             <div class="product-price-2">
-                                                                <span class="new-price">&#8377; <%= productData[i].discountPrice %></span>
+                                                                <span class="new-price">&#8377; <%= currPrice %></span>
                                                                 <span class="old-price">&#8377; <%= productData[i].price %></span>
                                                             </div>
                                                             <form action="/shop/addToCart/<%= productData[i]._id %>">
@@ -971,7 +992,7 @@
 
                             <div class="sidebar-widget shop-sidebar-border mb-35 pt-40">
                                 <h4 class="sidebar-widget-title">Categories </h4>
-                                <div class="shop-catigory">
+                                <div class="shop-catigory" >
                                     <ul>
                                         <!-- <li><a href="shop.html">T-Shirt</a></li>
                                         <li><a href="shop.html">Shoes</a></li>
@@ -982,10 +1003,10 @@
                                         <% 
                                         categoryNames.forEach((category) => {
                                             %>
-                                            <li>
+                                            <li >
                                                 <a href="?category=<%= category._id %>&sortValue=<%= sortValue %>
                                                         &brand=<%= brand %>&minPrice=<%= minPrice %>&maxPrice=<%= maxPrice %>
-                                                        &search=<%= search %>">
+                                                        &search=<%= search %>" id="myDIV">
                                                     <%= category.name %>
                                                 </a>
                                             </li>
@@ -1013,7 +1034,7 @@
                                                         <li>
                                                             <a href="?brand=<%= brand._id %>&sortValue=<%= sortValue %>
                                                                 &category=<%= category %>&minPrice=<%= minPrice %>&maxPrice=<%= maxPrice %>
-                                                                &search=<%= search %>">
+                                                                &search=<%= search %>" class="active">
                                                                 <%= brand._id %>
                                                             </a>
                                                         </li>
@@ -1293,5 +1314,20 @@
         </div>
         <!-- Modal end -->
     </div>
+
+
+    <!-- <script>
+    // Add active class to the current button (highlight it)
+    var header = document.getElementById("myDIV");
+    var btns = header.getElementsByClassName(".sidebar-widget .shop-catigory ul li");
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].addEventListener("click", function() {
+      var current = document.getElementsByClassName(".sidebar-widget .shop-catigory ul li");
+      current[0].className = current[0].className.replace(" .sidebar-widget .shop-catigory ul li", "");
+      this.className += " .sidebar-widget .shop-catigory ul li";
+      });
+    }
+    </script> -->
+
 
     <%- include('../partials/footer.ejs') %>

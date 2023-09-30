@@ -282,6 +282,9 @@
                                         <div class="total-shipping">
                                             <h5>Total shipping   </h5>
                                             <ul>
+                                                <li>Total MRP <span  id="totalPrice"> &#8377; <%= totalPrice %></span></li>
+                            <li>Discount <span style="color: green;"  id="totalDiscount"> -&#8377; <%= totalDiscount %></span></li>
+                            <li>Amount <span  id="amount"> &#8377; <%= totalPrice - totalDiscount %></span></li>
                                                 <!-- <li><input type="checkbox"> Cash On Delivery<span>$20.00</span></li> -->
                                                 <!-- <li><input type="checkbox"> Express <span>$30.00</span></li> -->
                                             </ul>
@@ -300,8 +303,13 @@
         </div>
        
         <%- include('../partials/footer.ejs') %>
-
+        <!-- <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script> -->
+        <!-- <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script> -->
+        <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
+        integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
         <script>
+            console.log('up');
             function updateCart(operation, prodId, spanID) {
                 let quantity = document.getElementById(spanID)
                 let parsedQuantity = parseInt(quantity.innerText)
@@ -347,10 +355,10 @@
                 } else if (parsedQuantity == maxQuantity) {
                     messageElement.innerText = "Stock limit reached"; 
                 } else {
-                    messageElement.innerText = ""
+                    messageElement.innerText = " "
+                    
                 }
             }
-        
         
             //ajax
             function ajaxConnection(amt, prodId, spanID) {

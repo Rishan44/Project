@@ -1,10 +1,19 @@
 const User = require('../models/userModel')
 const Products = require('../models/productModel')
 const Addresses = require('../models/addressModel')
+const Categories = require('../models/categoryModel')
 const { getOTP, securePassword } = require('../helpers/generator')
 const { sendVerifyMail } = require('../services/nodeMailer')
+const { updateWallet } = require('../helpers/helpersFunctions')
 const crypto = require('crypto')
+require('dotenv').config()
 const bcrypt = require('bcrypt')
+const Razorpay = require('razorpay')
+
+var instance = new Razorpay({
+    key_id: process.env.key_id,
+    key_secret:  process.env.key_secret,
+});
 
 
 
@@ -358,7 +367,6 @@ const loadProfile = async (req, res, next) => {
         const userId = req.session.userId;
         const userData = await User.findById({ _id: userId })
         const userAddress = await Addresses.findOne({ userId: userId })
-        console.log('user:' + userAddress);
         res.render('userProfile', { userData, userAddress, isLoggedIn: true, page: 'Profile' })
     } catch (error) {
         console.log(error.message);
@@ -564,6 +572,82 @@ const removeWishlistItem = async(req, res, next) => {
     }
 }
 
+const loadWalletHistory = async(req,res,next)=>{
+    try {
+        const userId = req.session.userId;
+        const userData = await User.findById({_id:userId})
+        const walletHistory = userData.walletHistory.reverse()
+        res.render('walletHistory',{isLoggedIn:true,userData,walletHistory,page:'Profile'})
+    } catch (error) {
+        console.log(error.message)
+    }
+}
+
+const addMoneyToWallet = async(req, res, next) => {
+    try {
+        console.log('adding money to wallet');
+        const { amount } = req.body
+        const  id = crypto.randomBytes(8).toString('hex')
+
+        var options = {
+            amount: amount*100,
+            currency:'INR',
+            receipt: "hello"+id
+        }
+
+        instance.orders.create(options, (err, order) => {
+            if(err){
+                res.json({status: false})
+            }else{
+                res.json({ status: true, payment:order })
+            }
+
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
+
+const verifyWalletPayment = async(req, res, next) => {
+    try {
+        
+        const userId = req.session.userId;
+        const details = req.body
+        const amount = parseInt(details['order[amount]'])/100
+        let hmac = crypto.createHmac('sha256',process.env.key_secret)
+        
+        hmac.update(details['response[razorpay_order_id]']+'|'+details['response[razorpay_payment_id]'])
+        hmac = hmac.digest('hex');
+        if(hmac === details['response[razorpay_signature]']){
+            console.log('order verified updating wallet');
+
+            const walletHistory = {
+                date: new Date(),
+                amount,
+                message: 'Deposited via Razorpay'
+            }
+
+            await User.findByIdAndUpdate(
+                {_id: userId},
+                {
+                    $inc:{
+                        wallet: amount
+                    },
+                    $push:{
+                        walletHistory
+                    }
+                }
+            );
+
+            res.json({status: true})
+        }else{
+            res.json({status: false})
+        }
+    } catch (error) {
+        next(next)
+    }
+}
 
 
 
@@ -592,7 +676,10 @@ module.exports = {
     clearCart,
     loadWishlist,
     addToWishlist,
-    removeWishlistItem
+    removeWishlistItem,
+    loadWalletHistory,
+    addMoneyToWallet,
+    verifyWalletPayment
 }
 
 

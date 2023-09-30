@@ -47,7 +47,22 @@ const userSchema=new mongoose.Schema({
     isBlocked:{
         type:Boolean,
         default:false
-    }
+    },
+    wallet:{
+        type : Number,
+        default : 0
+    },
+    walletHistory : [{
+        date : {
+            type : Date,
+        },
+        amount : {
+            type : Number
+        },
+        message : {
+            type : String
+        }
+    }]
 
 },{
     timestamps:true

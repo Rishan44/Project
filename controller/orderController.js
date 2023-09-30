@@ -2,9 +2,17 @@ const User = require('../models/userModel')
 const Products = require('../models/productModel')
 const Addresses = require('../models/addressModel')
 const Orders = require('../models/orderModel')
+const Coupons = require('../models/couponModel')
 const { request } = require('express')
-
+const Razorpay = require('razorpay')
 require('dotenv').config()
+const { updateWallet } = require('../helpers/helpersFunctions')
+
+
+var instance = new Razorpay({
+    key_id: process.env.key_id,
+    key_secret:  process.env.key_secret,
+});
 
 
 const loadCheckout = async(req,res,next)=>{
@@ -18,9 +26,12 @@ const loadCheckout = async(req,res,next)=>{
             return redirect('/shoppingCart')
         }
 
+        const walletBalance = userData.wallet;
+        const coupons = await Coupons.findByIsCancelled(false)
+
         
 
-        res.render('checkout',{isLoggedIn : true,page:'Checkout',userId,userAddress,cart})
+        res.render('checkout',{isLoggedIn : true,page:'Checkout',userId,userAddress,cart,walletBalance,coupons})
     } catch (error) {
         next(error)
     }
@@ -35,6 +46,7 @@ const placeOrder = async(req,res,next)=>{
         const addressId = req.body.address
         const paymentMethod  = req.body.payment
         const userId = req.session.userId
+        const isWalletSelected = req.body.walletCheckBox
         // console.log(addressId+'add');
         // console.log(paymentMethod+'pm');
         
@@ -43,32 +55,78 @@ const placeOrder = async(req,res,next)=>{
         const address = userAddress.addresses.find(obj => obj._id.toString() === addressId)
         req.session.deliveryAddress = address
         
-        // console.log(req.session.deliveryAddress+'ua');
+
         //getting cart Items
         const userData = await User.findOne({_id:userId}).populate('cart.productId');
         const cart = userData.cart
-
+        const walletAmount = req.session.walletAmount = parseInt(userData.wallet)
+        console.log(walletAmount);
         req.session.cart = cart;
 
         let products = []
 
         cart.forEach((pdt)=>{
+            let discountPrice;
+            let totalDiscount;
+        
+        
+            //offer code
+
+
+            discountPrice = pdt.discountPrice,
+                totalDiscount = pdt.quantity*pdt.discountPrice
             const product = {
                 productId : pdt.productId._id,
                 productName : pdt.productId.name,
                 productPrice : pdt.productPrice,
+                discountPrice,
                 quantity : pdt.quantity,
                 totalPrice: pdt.quantity*pdt.productId.price,
+                totalDiscount,
                 status:'Order Confirmed'
             }
             products.push(product)
         })
+        req.session.products = products;
         let totalPrice = 0;
+        if(cart.length){
+
         for(let i=0;i<products.length;i++){
-            totalPrice += products[i].totalPrice
+            totalPrice += (products[i].totalPrice - products[i].totalDiscount )
         }
 
-        req.session.products = products
+
+        let couponCode = '';
+        let couponDiscount = 0;
+        let couponDiscountType;
+        if(req.session.coupon){
+
+            const coupon = req.session.coupon
+            couponCode = coupon.code
+            couponDiscount = coupon.discountAmount
+
+            if(coupon.discountType === 'Percentage'){
+
+                couponDiscountType = 'Percentage';
+                const reducePrice =  totalPrice * (couponDiscount / 100)
+
+                if(reducePrice >= coupon.maxDiscountAmount){
+                    totalPrice -= coupon.maxDiscountAmount
+                }else{
+                    totalPrice -= reducePrice
+                }
+
+            }else{
+                couponDiscountType = 'Fixed Amount';
+                totalPrice = totalPrice - couponDiscount
+            }
+            
+        }
+
+
+        req.session.isWalletSelected = isWalletSelected;
+        req.session.totalPrice = totalPrice
+        // req.session.products = products
         if(paymentMethod === 'COD'){
 
             await new Orders({
@@ -77,9 +135,12 @@ const placeOrder = async(req,res,next)=>{
                 totalPrice,
                 products,
                 paymentMethod,
-                status:'Order Confirmed'
+                status:'Order Confirmed',
+                couponCode,
+                couponDiscount,
+                couponDiscountType
             }).save()
-        }
+        
 
 
         //Reducing quantity/stock of purchased products from products collection
@@ -88,6 +149,18 @@ const placeOrder = async(req,res,next)=>{
                 { _id:productId._id },
                 { $inc: {quantity: -quantity} }
             );
+        }
+
+        //Adding user to usedUsers list in Coupons collection
+        if(req.session.coupon != null){
+            await Coupons.findByIdAndUpdate(
+                {_id:req.session.coupon._id},
+                {
+                    $push:{
+                        usedUsers: userId
+                    }
+                }
+            )
         }
 
 
@@ -103,6 +176,202 @@ const placeOrder = async(req,res,next)=>{
         req.session.cartCount = 0;
         res.json({status : 'COD'})
 
+    }else if(paymentMethod === 'Razorpay'){
+        // console.log('Payment method razorpay');
+
+        if(isWalletSelected){
+            totalPrice = totalPrice - walletAmount
+        }
+
+        var options = {
+            amount:totalPrice*100,
+            currency:'INR',
+            receipt: "hello"
+        }
+
+        instance.orders.create(options,(err, order) => {
+            if(err){
+                console.log(err);
+            }else{
+                res.json({status: 'Razorpay',order:order})
+            }
+        })
+    }else if(paymentMethod == 'Wallet'){
+
+        await new Orders({
+            userId, 
+            deliveryAddress: address,
+            totalPrice,
+            products, 
+            paymentMethod,
+            status: 'Order Confirmed',
+            // date: new Date(),
+            couponCode,
+            couponDiscount,
+            couponDiscountType
+        }).save()
+
+        //Reducing quantity/stock of purchased products from Products Collection
+        for (const { productId, quantity } of cart) {
+            await Products.updateOne(
+                { _id: productId._id },
+                { $inc: { quantity: -quantity } }
+            );
+        }
+
+        //Deleting Cart from user collection
+        await User.findByIdAndUpdate(
+            {_id:userId},
+            {
+                $set:{
+                    cart: []
+                }
+            }
+        );
+
+        //Adding user to usedUsers list in Coupons collection
+        if(req.session.coupon != null){
+            await Coupons.findByIdAndUpdate(
+                {_id:req.session.coupon._id},
+                {
+                    $push:{
+                        usedUsers: userId
+                    }
+                }
+            )
+        }
+
+        req.session.cartCount = 0;
+
+        const walletHistory = {
+            date: new Date(),
+            amount: -totalPrice,
+            message: 'Product Purchase'
+        }
+
+        // Decrementing wallet amount
+        await User.findByIdAndUpdate(
+            { _id: userId },
+            {
+                $inc: {
+                    wallet: -totalPrice
+                },
+                $push:{
+                    walletHistory
+                }
+            }
+        );
+
+        res.json({status : 'Wallet'})
+    }
+
+
+}else{
+    console.log('Cart is empty');
+    res.redirect('/shop')
+}
+
+
+    
+    } catch (error) {
+        next(error)
+    }
+}
+
+
+const verifyPayment = async (req,res,next)=>{
+    try {
+        
+        const userId = req.session.userId;
+        const details = req.body;
+        // console.log(details);
+        // console.log("in verify payment ");
+        const crypto = require('crypto');
+        
+        // Use square bracket notation to access the properties
+        let hmac = crypto.createHmac('sha256', process.env.key_secret);
+        hmac.update(details['response[razorpay_order_id]'] + '|' + details['response[razorpay_payment_id]']);
+        hmac = hmac.digest('hex');
+
+        if(hmac === details['response[razorpay_signature]']){
+                
+            let totalPrice = req.session.totalPrice
+
+            const coupon = req.session.coupon
+            let couponCode = '';
+            let couponDiscount = 0;
+            let couponDiscountType;
+            if(coupon){
+                couponCode = coupon.code
+                couponDiscount = coupon.discountAmount
+                couponDiscountType = coupon.discountType
+            }
+
+            await new Orders({
+                userId,
+                deliveryAddress:req.session.deliveryAddress,
+                totalPrice,
+                products:req.session.products,
+                paymentMethod:'Razorpay',
+                status:'Order Confirmed',
+                couponCode,
+                couponDiscount,
+                couponDiscountType
+            }).save()
+
+            if(req.session.isWalletSelected){
+                const userData = await User.findById({ _id: userId });
+                userData.walletHistory.push(
+                    {
+                        date: new Date(),
+                        amount: userData.wallet,
+                        message: 'Product Purchase'
+                    }
+                )
+
+                userData.wallet = 0;
+                await userData.save()
+            }
+
+            //Reducing quantity/stock of purchased products from Products Collection
+            const cart = req.session.cart;
+            for (const { productId, quantity } of cart) {
+                await Products.updateOne(
+                    { _id: productId._id },
+                    { $inc: { quantity: -quantity } }
+                );
+            }
+
+            //Adding user to usedUsers list in Coupons collection
+            if(coupon != null){
+                await Coupons.findByIdAndUpdate(
+                    {_id:req.session.coupon._id},
+                    {
+                        $push:{
+                            usedUsers: userId
+                        }
+                    }
+                )
+            }
+
+
+             //Deleting Cart from user collection
+             await User.findByIdAndUpdate(
+                {_id:userId},
+                {
+                    $set:{
+                        cart: []
+                    }
+                }
+            );
+
+            req.session.cartCount = 0;
+
+            res.json({status:true})
+        }else{
+            res.json({status:false})
+        
+        }
     } catch (error) {
         next(error)
     }
@@ -135,7 +404,6 @@ const loadViewOrderDetails = async(req,res,next)=>{
         const userId = req.session.userId
 
         const orderData = await Orders.findById({_id:orderId}).populate('products.productId')
-        console.log('Data==='+orderData);
 
         let status ;
         switch(orderData.status){
@@ -234,7 +502,7 @@ const cancelOrder = async(req,res, next) => {
         const userId = orderData.userId
 
 
-        // console.log(cancelledBy);
+        console.log(cancelledBy);
         let refundAmount = 0;
         if(cancelledBy == 'user'){
 
@@ -353,7 +621,7 @@ const cancelSinglePdt = async(req, res, next) => {
 
         await orderData.save()
         await updateOrderStatus(orderId, next);
-        // await updateWallet(userId, refundAmount, 'Refund of Order Cancellation')
+        await updateWallet(userId, refundAmount, 'Refund of Order Cancellation')
 
         if(cancelledBy == 'admin'){
             res.redirect(`/admin/ordersList`)
@@ -501,6 +769,155 @@ const updateOrderStatus = async(orderId,next)=>{
     }
 }
 
+
+const returnOrder = async(req,res,next)=>{
+    try {
+        const orderId = req.params.orderId
+        const orderData = await Orders.findById({_id: orderId})
+
+        for (const pdt of orderData.products){
+
+            if(pdt.status === 'Delivered'){
+                pdt.status = 'Pending Return Approval'
+            }
+        };
+
+        await orderData.save()
+        await updateOrderStatus(orderId, next);
+
+
+        res.redirect(`/viewOrderDetails/${orderId}`)
+
+    } catch (error) {
+        next(error)
+    }
+}
+
+const approveReturn = async(req,res,next)=>{
+    try {
+        const orderId = req.params.orderId;
+
+        const orderData = await Orders.findById({ _id:orderId})
+
+        let refundAmount = 0;
+        for (const pdt of orderData.products){
+
+            if(pdt.status === 'Pending Return Approval' ){
+                pdt.status = 'Returned'
+
+                refundAmount = refundAmount + pdt.totalPrice
+
+                //Incrementing Product Stock
+                await Products.findByIdAndUpdate(
+                    {_id: pdt.productId},
+                    {
+                        $inc:{
+                            quantity: pdt.quantity
+                        }
+                    }
+                );
+
+            }
+        };
+
+        await orderData.save()
+        await updateOrderStatus(orderId, next);
+
+
+        const userId = orderData.userId;
+
+        //Adding amount into users wallet
+        await updateWallet(userId, refundAmount, 'Refund of Returned Order')
+
+        res.redirect('/admin/ordersList')
+    } catch (error) {
+        next(error)
+    }
+}
+
+
+const returnSinglePdt = async(req, res, next) => {
+    try {
+        const { orderId, pdtId } = req.params
+        const orderData = await Orders.findById({_id: orderId})
+        
+        for( const pdt of orderData.products){
+            if(pdt._id == pdtId){
+                pdt.status = 'Pending Return Approval'
+                break;
+            }
+        }
+
+        await orderData.save()
+        await updateOrderStatus(orderId, next);
+
+        res.redirect(`/viewOrderDetails/${orderId}`)
+
+    } catch (error) {
+        next(error)
+    }
+}
+
+const approveReturnForSinglePdt = async(req, res, next) => {
+    try {
+        const { orderId, pdtId } = req.params
+        const orderData = await Orders.findById({_id: orderId})
+        const userId = orderData.userId;
+
+        let refundAmount;
+        for( const pdt of orderData.products){
+            if(pdt._id == pdtId){
+
+                pdt.status = 'Returned'
+
+                refundAmount = pdt.totalPrice;
+
+                //Incrementing Product Stock
+                await Products.findByIdAndUpdate(
+                    {_id: pdt.productId},
+                    {
+                        $inc:{
+                            quantity: pdt.quantity
+                        }
+                    }
+                );
+
+                break;
+            }
+        }
+
+        await orderData.save()
+        await updateOrderStatus(orderId, next);
+        await updateWallet(userId, refundAmount, 'Refund of Retrned Product')
+
+
+        res.redirect(`/admin/ordersList`)
+
+    } catch (error) {
+        next(error)
+    }
+}
+
+
+const loadInvoice = async(req,res,next)=>{
+    try {
+        const {orderId} = req.params
+        const isLoggedIn = Boolean(req.session.userId)
+        const order = await Orders.findById({_id:orderId})
+        let discount;
+
+        //coupan code is here
+        if(order.coupon){
+            discount = Math.floor(order.totalPrice/( 1- (order.couponDiscount/100)))
+        }
+
+        res.render('invoice',{order,isLoggedIn,page:'Invoice',discount})
+
+    } catch (error) {
+        next(error)
+    }
+}
+
 module.exports = {
     loadCheckout,
     placeOrder,
@@ -510,7 +927,13 @@ module.exports = {
     loadOrdersList ,
     changeOrderStatus,
     cancelOrder,
-    cancelSinglePdt
+    cancelSinglePdt,
+    verifyPayment,
+    returnOrder,
+    approveReturn,
+    returnSinglePdt,
+    approveReturnForSinglePdt,
+    loadInvoice
     
 
 

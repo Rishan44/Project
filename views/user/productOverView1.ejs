@@ -145,9 +145,11 @@
                                 </div>
                             </div> -->
                             <!-- <p>Seamlessly predominate enterprise metrics without performance based process improvements.</p> -->
+                            <% let currPrice %>
+                            <%  currPrice=pdtData.price - pdtData.discountPrice %>
                             <div class="pro-details-price">
-                                <span class="new-price">&#8377;<%= pdtData.price %></span>
-                                <span class="old-price">&#8377;<%= pdtData.discountPrice %></span>
+                                <span class="new-price">&#8377;<%= currPrice//pdtData.price %></span>
+                                <span class="old-price">&#8377;<%= pdtData.price//pdtData.discountPrice %></span>
                             </div>
                             <!-- <div class="pro-details-color-wrap">
                                 <span>Color:</span>
@@ -174,12 +176,12 @@
                                     </ul>
                                 </div>
                             </div> -->
-                            <div class="pro-details-quality">
+                            <!-- <div class="pro-details-quality">
                                 <span><%= pdtData.quantity %> LEFT</span> 
                                 <div class="cart-plus-minus">
                                     <input class="cart-plus-minus-box" type="text" name="qtybutton" value="1">
                                 </div>
-                            </div>
+                            </div> -->
                             <div class="product-details-meta">
                                 <ul>
                                     <!-- <li><span>Categories:</span> <a href="#">Woman,</a> <a href="#">Dress,</a> <a href="#">T-Shirt</a></li> -->
@@ -203,7 +205,11 @@
                                     <!-- <a title="Add to Cart" href="/addToCart">Add To Cart </a> -->
                                 </div>
                                 <div class="pro-details-action">
+
+                                    
                                     <a title="Add to Wishlist" href="#"><i class="icon-heart"></i></a>
+
+
                                     <a title="Add to Compare" href="#"><i class="icon-refresh"></i></a>
                                     <a class="social" title="Social" href="#"><i class="icon-share"></i></a>
                                     <div class="product-dec-social">

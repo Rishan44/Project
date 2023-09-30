@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-mongoose.connect("mongodb://127.0.0.1:27017/Ecommerce")
+// mongoose.connect("mongodb://127.0.0.1:27017/Ecommerce") 
 const express=require("express")
 require('dotenv').config()
 const path = require('path')
@@ -11,7 +11,7 @@ const {mongoConnect, secretKey} = require('./config/config')
 const nocache = require('nocache')
 const flash= require('express-flash')
 const { err404, err500 } = require('./middleware/errorHandler')
-// mongoConnect()
+mongoConnect()
 
 const PORT = process.env.PORT
 
