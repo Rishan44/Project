@@ -9,6 +9,7 @@ const upload = require('../config/multer')
 const categoryController = require('../controller/categoryController')
 const orderController = require('../controller/orderController')
 const couponController = require('../controller/couponController')
+const offerController = require('../controller/offerController') 
 const path = require('path')
 const { isAdminLoggedIn, isAdminLoggedOut } = require('../middleware/auth')
 // const nocache=require('nocache')
@@ -69,5 +70,18 @@ adminRoute.get('/coupons/editCoupon/:couponId',couponController.loadEditCoupon)
 adminRoute.post('/coupons/editCoupon/:couponId',couponController.postEditCoupon)
 adminRoute.get('/coupons/cancelCoupon/:couponId',couponController.cancelCoupon)
 
+
+adminRoute.get('/offers',offerController.loadOffer)
+adminRoute.get('/offers/addOffer',offerController.loadAddOffer)
+adminRoute.get('/offers/editOffer/:offerId',offerController.loadEditOffer)
+
+
+adminRoute.post('/offers/addOffer',offerController.postAddOffer)
+adminRoute.post('/offers/editOffer/:offerId',offerController.postEditOffer)
+adminRoute.get('/offers/cancelOffer/:offerId',offerController.cancelOffer)
+adminRoute.post('/applyOfferToCategory',categoryController.applyCategoryOffer)
+adminRoute.post('/removeCategoryOffer/:catId',categoryController.removeCategoryOffer)
+adminRoute.post('/applyOfferToProduct',productController.applyProductOffer)
+adminRoute.post('/removeProductOffer/:productId',productController.removeProductOffer)
 
 module.exports = adminRoute

@@ -1,0 +1,64 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <title>Reason to Return</title>
+</head> -->
+<%- include('../partials/head.ejs') %>
+
+<%- include('../partials/userHeader.ejs') %>
+<style>
+    input{
+        height: 13px !important;
+    }
+    
+    
+
+
+</style>
+<body>
+    <h1>Return Product</h1>
+    <form action="/processReturn" method="post" style="padding-left: 100px;
+    padding-top: 147px;">
+        <div>
+            <!-- <label for="productID"></label> -->
+            <!-- <input type="text" id="<%= orderData._id %>" name="productID" required> -->
+        </div>
+        <div>
+            <label>Reason for Return:</label>
+            <div>
+                <input type="radio" id="reason-defective" name="reason" value="Defective" required>
+                <label for="reason-defective">Defective</label>
+            </div>
+            <div>
+                <input type="radio" id="reason-wrong-item" name="reason" value="Received Wrong Item" required>
+                <label for="reason-wrong-item">Received Wrong Item</label>
+            </div>
+            <div>
+                <input type="radio" id="reason-damaged" name="reason" value="Damaged During Shipping" required>
+                <label for="reason-damaged">Damaged During Shipping</label>
+            </div>
+            <div>
+                <input type="radio" id="reason-other" name="reason" value="Other" required>
+                <label for="reason-other">Other </label>
+                <textarea type="textarea"value="State Your Reason"></textarea>
+            </div>
+        </div>
+        <div style="margin-bottom: 108px !important;     display: flex;
+        justify-content: center !important;
+        margin-top: 100px !important;"> 
+            <div class="return">
+                <button type="submit" style="  background-color: #f2f2f2;
+                display: inline-block;
+                font-size: 14px;
+                font-weight: 600;
+                line-height: 1;
+                padding: 18px 40px 17px;
+                text-transform: capitalize;
+                letter-spacing: .3px;">Return Product</button>
+            </div>
+        </div>
+    </form>
+</body>
+</html>
+
+<%- include('../partials/footer.ejs') %>

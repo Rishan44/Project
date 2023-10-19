@@ -141,6 +141,7 @@ const loadDashboard = async(req,res,next)=>{
  
          let months = []
          let sales = []
+         console.log(orderData,'orderData');
  
          if(req.query.year && req.query.month){
  
@@ -247,7 +248,7 @@ const loadDashboard = async(req,res,next)=>{
              salesOnPrevMonth
             })
     } catch (error) {
-        console.log(error);
+        next(error);
     }
 
 

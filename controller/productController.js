@@ -1,14 +1,19 @@
 const Products = require('../models/productModel')
 const User = require('../models/userModel')
 const Categories = require('../models/categoryModel')
+const Offers = require('../models/offerModel')
 const fs = require('fs')
 const path = require('path')
 
 const loadProducts = async(req,res,next)=>{
     try {
-        const productData = await Products.find().populate("category")
-
-        res.render('products',{productData,page:'Products'})
+        const productData = await Products.find().populate("category").populate('offer')
+        
+        const offerData = await Offers.find({ $or: [
+            {status : 'Starting Soon'},
+            {status : 'Available' }
+        ]});
+        res.render('products',{productData,page:'Products',offerData})
     } catch (error) {
         console.log(error);
     }
@@ -208,13 +213,17 @@ const loadShop = async(req,res,next)=>{
         };
 
         //add category to query to filter based on category
+        let pdtCat;
         if(req.query.category){
             query.category = req.query.category
+            pdtCat = req.query.category
         };
 
         //add category to query to filter based on brand
+        let pdtBrand;
         if(req.query.brand){
             query.brand = req.query.brand
+            pdtBrand = req.query.brand
         };
 
         let sortValue = 1;
@@ -224,10 +233,22 @@ const loadShop = async(req,res,next)=>{
 
         let productData;
         if(sortValue == 1){
-            productData = await Products.find(query).populate('category').sort({createdAt:-1}).limit(limit*1).skip((page - 1)*limit);
+            productData = await Products.find(query).populate('category').populate('offer').sort({createdAt:-1}).limit(limit*1).skip((page - 1)*limit);
 
         }else{
-            productData = await Products.find(query).populate('category');
+            productData = await Products.find(query).populate('category').populate('offer');
+
+            //offer code
+            productData.forEach(((pdt) => {
+                if (pdt.offerPrice) {
+                    pdt.actualPrice = pdt.offerPrice
+                    console.log(pdt.offerPrice);
+                } else {
+                    pdt.actualPrice = pdt.price - pdt.discountPrice
+                }
+            }))
+
+
 
             if(sortValue == 2){
                 //sorting in ascending order of price
@@ -289,7 +310,10 @@ const loadShop = async(req,res,next)=>{
             maxPrice:req.query.maxPrice,
             brand:req.query.brand,
             search:req.query.search,
-            removeFilter
+            removeFilter,
+            pdtCat,
+            pdtBrand
+            
         })
     } catch (error) {
        next(error); 
@@ -301,21 +325,26 @@ const loadProductOverview = async(req,res,next)=>{
         const id = req.params.id;
         const userId = req.session.userId
         const isLoggedIn = Boolean(userId)
-        const pdtData = await Products.findById({_id:id})
+        const productData = await Products.findById({_id:id})
 
         let isPdtExistInCart = false;
+        let isPdtAWish = false;
+
 
         if(userId){
             const userData= await User.findById({_id:userId})
-            
+            const wishlist = userData.wishlist
             userData.cart.forEach((pdt) =>{
                 if(pdt.productId == id){
                     isPdtExistInCart = true
                 }
             })
+            if(wishlist.find((productId)=>productId == id)){
+                isPdtAWish = true;
+            }
 
         }
-        res.render('productOverview1',{pdtData, parentPage:'Shop',page:'Product Overview',isLoggedIn,isPdtExistInCart})
+        res.render('productOverview1',{productData, parentPage:'Shop',page:'Product Overview',isLoggedIn,isPdtExistInCart,isPdtAWish})
     } catch (error) {
         console.log(error.message);
     }
@@ -351,6 +380,63 @@ const deleteImage = async(req,res, next) => {
     }
 }
 
+const applyProductOffer = async(req, res, next) => {
+    try {
+        const { offerId, productId } = req.body
+     console.log(req.body.offerId)
+        const product = await Products.findById({_id:productId})
+        const offerData = await Offers.findById({_id:offerId})
+        const actualPrice = product.price - product.discountPrice;
+        console.log(offerData.status)
+        
+        let offerPrice = 0;
+        if(offerData.status == 'Available'){
+            offerPrice = Math.round( actualPrice - ( (actualPrice*offerData.discount)/100 ))
+        }
+        console.log(offerPrice);
+
+        await Products.updateOne(
+            {_id:productId},
+            {
+                $set:{
+                    offerPrice,
+                    offerType: 'Offers',
+                    offer: offerId,
+                    offerAppliedBy: 'Product'
+                }
+            }
+        )
+            
+            res.redirect('/admin/products')
+        
+
+    } catch (error) {
+        next(error)
+    }
+}
+
+const removeProductOffer = async(req, res, next) => {
+    try {
+        const { productId } = req.params
+        await Products.findByIdAndUpdate(
+            {_id: productId},
+            {
+                $unset:{
+                    offer:'',
+                    offerType: '',
+                    offerPrice:'',
+                    offerAppliedBy:''
+                }
+            }
+        );
+
+        res.redirect('/admin/products')
+
+    } catch (error) {
+        next(error)
+    }
+}
+
 
 
 module.exports ={
@@ -362,5 +448,9 @@ module.exports ={
     postEditProduct,
     loadShop,
     deleteImage,
-    loadProductOverview
+    loadProductOverview,
+    applyProductOffer,
+    removeProductOffer
+
+
 }

@@ -1,11 +1,12 @@
 const express=require("express")
 const userController = require('../controller/userController')
-const userRoute=express()
 const productController = require('../controller/productController')
 const addressController = require('../controller/addressController')
 const orderController =require('../controller/orderController')
 const couponController = require('../controller/couponController')
 const {isUserLoggedIn, isUserLoggedOut ,isUserBlocked} = require('../middleware/auth')
+
+const userRoute=express()
 
 userRoute.set('views', 'views/user')
 
@@ -33,6 +34,7 @@ userRoute.post('/resendOTP',userController.resendOTP)
 
 userRoute.get('/shop',productController.loadShop)
 userRoute.get('/shop/productOverview1/:id',productController.loadProductOverview);
+userRoute.get('/aboutUs',userController.loadAboutUs)
 
 userRoute.use('/',isUserLoggedIn)
 
@@ -84,8 +86,8 @@ userRoute.get('/profile/myOrders',orderController.loadMyOrders)
 userRoute.get('/viewOrderDetails/:orderId',orderController.loadViewOrderDetails)
 userRoute.get('/cancelOrder/:orderId',orderController.cancelOrder)
 userRoute.get('/cancelSinglePrdt/:orderId/:pdtId',orderController.cancelSinglePdt)
-userRoute.get('/returnOrder/:orderId',orderController.returnOrder)
-userRoute.get('/returnSinglePrdt/:orderId/:pdtId',orderController.returnSinglePdt)
+userRoute.post('/returnOrder/:orderId',orderController.returnOrder)
+userRoute.post('/returnSinglePrdt/:orderId/:pdtId',orderController.returnSinglePdt)
 userRoute.get('/downloadInvoice/:orderId',orderController.loadInvoice)
 
 userRoute.post('/applyCoupon',couponController.applyCoupon)

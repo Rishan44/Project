@@ -63,9 +63,9 @@ const findSalesData = async(startDate = new Date('1990-01-01'), endDate = new Da
     try {
         const pipeline = [
             {
-                $match: {
+                $match: { 
                     status: 'Delivered',
-                    date: {
+                    createdAt: {
                         $gte: startDate,
                         $lt: endDate
                     }
@@ -97,7 +97,7 @@ const findSalesDataOfYear = async(year) => {
             {
                 $match: {
                     status: 'Delivered',
-                    date: {
+                    createdAt: {
                         $gte: new Date(`${year}-01-01`),
                         $lt: new Date(`${year + 1}-01-01`)
                     }
@@ -132,7 +132,7 @@ const findSalesDataOfMonth = async(year, month) => {
             {
                 $match: {
                     status: 'Delivered',
-                    date: {
+                    createdAt: {
                         $gte: firstDayOfMonth,
                         $lt: lastDayOfMonth
                     }

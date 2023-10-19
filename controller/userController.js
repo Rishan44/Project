@@ -2,6 +2,7 @@ const User = require('../models/userModel')
 const Products = require('../models/productModel')
 const Addresses = require('../models/addressModel')
 const Categories = require('../models/categoryModel')
+const Offers = require('../models/offerModel')
 const { getOTP, securePassword } = require('../helpers/generator')
 const { sendVerifyMail } = require('../services/nodeMailer')
 const { updateWallet } = require('../helpers/helpersFunctions')
@@ -186,10 +187,57 @@ const resendOTP = async (req, res, next) => {
 
 const loadShoppingCart = async (req, res, next) => {
     try {
-        const userId = req.session.userId;
-        // console.log('userId:'+userId);
-        const userData = await User.findById({ _id: userId }).populate('cart.productId')
-        const cartItems = userData.cart
+            const userId = req.session.userId;
+        
+            const userData = await User.findById({ _id: userId }).populate('cart.productId').populate('cart.productId.offer')
+            const cartItems = userData.cart
+        // console.log(cartItems);
+        // for(let item of cartItems){
+        //    let productId = item.productId;
+        //    console.log('heyyyyyy'+productId);
+        // }
+        
+        // const product = await Products.findById({_id:productId})
+        // const offerData = await Offers.findById({_id:offerId})
+        // console.log('hhhhhh'+product);
+      // const actualPrice = product.price - product.discountPrice;
+
+        // let offerMrp = Math.round((actualPrice*offerData.discount)/100)
+       // Initialize variables to store total price and total discount
+// let totalPrice = 0;
+// let totalDiscount = 0;
+
+const offerData= await Offers.findOne({})
+
+
+
+
+// Iterate through the cart items to calculate total price and total discount
+// for (const cartItem of cartItems) {
+//     const product = cartItem.productId;
+//     const offer = product.offer;
+    
+    // Calculate the offer amount for the current product
+    // console.log(offerAmount);
+    // console.log(actualPrice);
+    // const actualPrice = product.price - product.discountPrice;
+    // const offerAmount = Math.round((actualPrice*offerData.discount)/100)
+    // console.log(offerAmount);
+    
+    // Add the current product's price and offer amount to totals
+    // /const offerAmount = Math.round((totalPrice*offer.discount)/100)
+
+    // totalPrice += product.price;
+    // totalDiscount += offerAmount;
+    // console.log(product.offer);
+//}
+
+// Calculate the offer percentage for the entire cart
+//const offerPercentage = (totalDiscount / totalPrice) * 100;
+
+
+
+
 
         //Code to update cart values if product price changed by admin after we added pdt into cart
         for (const { productId } of cartItems) {
@@ -198,13 +246,13 @@ const loadShoppingCart = async (req, res, next) => {
                 {
                     $set: {
                         'cart.$.productPrice': productId.price,
-                        'cart.$.discountPrice': productId.discoutPrice,
+                        'cart.$.discountPrice': productId.discountPrice,
                     }
                 }
             )
         }
 
-        res.render('shoppingCart', { page: 'Shopping Cart', parentPage: 'Shop', isLoggedIn: true, userData, cartItems })
+        res.render('shoppingCart', { page: 'Shopping Cart', parentPage: 'Shop', isLoggedIn: true, userData, cartItems,offerData})
     } catch (error) {
         console.log(error.message);
     }
@@ -278,10 +326,16 @@ const updateCart = async (req, res, next) => {
 
         const stock = pdtData.quantity
         let totalSingle
-
+                    
         //offer
-
-        totalSingle = quantity * pdtData.price
+        if(pdtData.offerPrice){
+            totalSingle = quantity*pdtData.offerPrice
+        }else{
+            totalSingle = quantity*(pdtData.price - pdtData.discountPrice)
+        }
+        
+        // totalSingle = quantity * pdtData.price
+       
         if (stock >= quantity) {
             await User.updateOne(
                 { _id: userId, 'cart.productId': prodId },
@@ -299,7 +353,11 @@ const updateCart = async (req, res, next) => {
                 totalPrice += pdt.productPrice * pdt.quantity
 
                 //offer
-
+                if(pdt.productId.offerPrice){
+                    totalDiscount += (pdt.productPrice - pdt.productId.offerPrice)*quantity
+                }else{
+                    totalDiscount += pdt.discountPrice*pdt.quantity
+                }
 
             })
 
@@ -537,8 +595,8 @@ const addToWishlist = async(req, res, next) => {
         let { returnPage } = req.query
         if(returnPage == 'shop'){
             res.redirect('/shop')
-        }else if(returnPage == 'productOverview'){
-            res.redirect(`/shop/productOverview/${productId}`)
+        }else if(returnPage == 'productOverview1'){
+            res.redirect(`/shop/productOverview1/${productId}`)
         }
     } catch (error) {
         next(error)
@@ -562,8 +620,8 @@ const removeWishlistItem = async(req, res, next) => {
         const { returnPage } = req.query
         if(returnPage == 'shop'){
             res.redirect('/shop')
-        }else if(returnPage == 'productOverview'){
-            res.redirect(`/shop/productOverview/${productId}`)
+        }else if(returnPage == 'productOverview1'){
+            res.redirect(`/shop/productOverview1/${productId}`)
         }else if(returnPage == 'wishlist'){
             res.redirect('/wishlist')
         }
@@ -650,6 +708,23 @@ const verifyWalletPayment = async(req, res, next) => {
 }
 
 
+const loadAboutUs = async(req,res,next) =>{
+    try {
+        
+        const isLoggedIn = Boolean(req.session.userId)
+        const usersCount = await User.find().count() 
+        const activeUsers = await User.find({isBlocked:false}).count()
+        const happyCustomers = Math.floor( (activeUsers*100)/usersCount)
+        const categoriesCount = await Categories.find({isListed:true}).count()
+
+        res.render('aboutUs',{page : 'About Us',isLoggedIn,usersCount,happyCustomers,categoriesCount})
+
+    } catch (error) {
+        next(error)
+    }
+}
+
+
 
 module.exports = {
     loadHome,
@@ -679,7 +754,8 @@ module.exports = {
     removeWishlistItem,
     loadWalletHistory,
     addMoneyToWallet,
-    verifyWalletPayment
+    verifyWalletPayment,
+    loadAboutUs
 }
 
 

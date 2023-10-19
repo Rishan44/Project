@@ -15,9 +15,14 @@
             <small id="catErr" class="error ms-3">
               
             </small>
+            <div class="text-center text-danger">
+             <strong> <%= locals.categoryMessage?categoryMessage:'' %></strong>
+          </div>
             <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex justify-content-between">
 
               <h6 class="text-white text-capitalize ps-3">Categories</h6>
+
+              
               
               <form class="fixed-end d-flex align-content-center" action="/admin/categories" method="POST">
                 <input id="newCatName" class="" type="text" name="categoryName" placeholder="Category Name" style="margin-right: 9px; margin-bottom: 17px;">
@@ -25,6 +30,8 @@
               </form>
             </div>
           </div>
+          
+
           <div class="card-body px-0 pb-2">
             <div class="table-responsive p-3">
 
@@ -126,6 +133,26 @@
                                 </td>
 
                                 <td class="align-middle text-center">
+                                  <% 
+                                  if(offerData && offerData.length){
+                                    if(categories[i].offer && categories[i].offer!=''){
+                                      %>
+                                      <form action="/admin/removeCategoryOffer/<%= categories[i]._id %>" method="post">
+                                        <input type="hidden" name="offerId" value="<%= categories[i].offer._id %>">
+                                        <button type="submit" class="btn btn-danger"><%= categories[i].offer.name %> <span style="color: white;">x</span></button>
+                                      </form>
+                                      <%  
+                                    }else{
+                                      %>
+                                      <button class="btn btn-success offerBTN" data-bs-toggle="modal"  data-bs-target="#offerModal" data-id="<%= categories[i]._id %>">Apply</button>
+                                      <%  
+                                    }
+                                  }else{
+                                    %>
+                                    <p>No Offer Available</p>
+                                    <%  
+                                  }
+                                  %>
                                   
                                   <!-- <a href="#applyOfferModal" class="btn btn-danger applyOfferModal"  data-bs-toggle="modal" data-id="<%=// categories[i]._id %>">Apply</a> -->
                                 </td>
@@ -146,7 +173,13 @@
                                                 <input type="hidden" name="categoryId" value="" id="offerCategoryId">
                                                 <label for="offer">Select an offer to apply: </label>
                                                 <select name="offerId" id="offer" class="form-control">
-                                                   
+                                                   <% 
+                                                    offerData.forEach((offer) => {
+                                                      %>
+                                                      <option value="<%= offer._id  %>"> <%= offer.name %> </option>
+                                                      <%  
+                                                    })
+                                                    %>
                                                 </select>
 
                                                 <input type="checkbox" name="override" class="my-1" value="Override Product Offers">

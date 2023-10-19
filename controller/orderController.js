@@ -69,12 +69,14 @@ const placeOrder = async(req,res,next)=>{
             let discountPrice;
             let totalDiscount;
         
-        
-            //offer code
-
-
-            discountPrice = pdt.discountPrice,
+            if(pdt.productId.offerPrice){
+                discountPrice = pdt.productId.price - pdt.productId.offerPrice
+                totalDiscount = discountPrice*pdt.quantity
+            }else{
+                discountPrice = pdt.discountPrice,
                 totalDiscount = pdt.quantity*pdt.discountPrice
+            }
+
             const product = {
                 productId : pdt.productId._id,
                 productName : pdt.productId.name,
@@ -138,7 +140,8 @@ const placeOrder = async(req,res,next)=>{
                 status:'Order Confirmed',
                 couponCode,
                 couponDiscount,
-                couponDiscountType
+                couponDiscountType,
+                date:new Date()
             }).save()
         
 
@@ -205,7 +208,7 @@ const placeOrder = async(req,res,next)=>{
             products, 
             paymentMethod,
             status: 'Order Confirmed',
-            // date: new Date(),
+             date: new Date(),
             couponCode,
             couponDiscount,
             couponDiscountType
@@ -316,7 +319,8 @@ const verifyPayment = async (req,res,next)=>{
                 status:'Order Confirmed',
                 couponCode,
                 couponDiscount,
-                couponDiscountType
+                couponDiscountType,
+                date:new Date()
             }).save()
 
             if(req.session.isWalletSelected){
@@ -434,7 +438,13 @@ const loadViewOrderDetails = async(req,res,next)=>{
 
         }
 
-        res.render('orderDetails',{isLoggedIn:true,page:'Order Details',parentPage:'My Orders',status,orderData})
+        let orderedDate = new Date(orderData.date)
+      const day1 =orderedDate.getDate();
+      const date = new Date();
+      const day2 = date.getDate();
+      const rdate = Math.abs(day2-day1)
+
+        res.render('orderDetails',{isLoggedIn:true,page:'Order Details',parentPage:'My Orders',status,orderData,rdate})
 
     } catch (error) {
         next(error)   
@@ -785,7 +795,7 @@ const returnOrder = async(req,res,next)=>{
         await orderData.save()
         await updateOrderStatus(orderId, next);
 
-
+      //  res.render('returnReason',{isLoggedIn:true,page:'return Reason',orderData})
         res.redirect(`/viewOrderDetails/${orderId}`)
 
     } catch (error) {
@@ -899,20 +909,20 @@ const approveReturnForSinglePdt = async(req, res, next) => {
 }
 
 
-const loadInvoice = async(req,res,next)=>{
+const loadInvoice = async(req,res, next) => {
     try {
-        const {orderId} = req.params
+        const { orderId } = req.params
         const isLoggedIn = Boolean(req.session.userId)
-        const order = await Orders.findById({_id:orderId})
+        const order = await Orders.findById({_id: orderId})
         let discount;
+        if(order.couponCode){
 
-        //coupan code is here
-        if(order.coupon){
             discount = Math.floor(order.totalPrice/( 1- (order.couponDiscount/100)))
+            console.log('helloo'+discount);
         }
 
-        res.render('invoice',{order,isLoggedIn,page:'Invoice',discount})
 
+        res.render('invoice',{order, isLoggedIn, page:'Invoice', discount})
     } catch (error) {
         next(error)
     }
@@ -935,6 +945,4 @@ module.exports = {
     approveReturnForSinglePdt,
     loadInvoice
     
-
-
 }

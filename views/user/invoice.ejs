@@ -27,7 +27,7 @@
                 <div class="col-6">
                     <address>
                         <strong>Billed To:</strong><br>
-                        <% //console.log(order)%>
+                        <% console.log(discount)%>
                         <%=order.deliveryAddress.userName %><br>
                         <%=order.deliveryAddress.address %><br>
                         <%=order.deliveryAddress.town %>&nbsp;<%=order.deliveryAddress.zip %> <br>
@@ -99,10 +99,10 @@
                                         console.log(prod.totalPrice)
                                         console.log(prod.productPrice)
                                         %>
-                                        <td class="text-end">₹ <%=prod.productPrice //- prod.discountPrice %>
+                                        <td class="text-end">₹ <%=prod.productPrice - prod.discountPrice %>
                                         </td>
-                                        <td class="text-end">₹ <%= //(prod.productPrice - prod.discountPrice)
-                                                                          prod.totalPrice * prod.quantity %>
+                                        <td class="text-end">₹ <%= (prod.productPrice - prod.discountPrice)
+                                                                          //prod.totalPrice * prod.quantity %>
                                         </td>
                                     </tr>
                                     <% }) %>

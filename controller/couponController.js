@@ -124,9 +124,11 @@ const applyCoupon = async(req, res, next) => {
         cart.forEach(pdt => {
             totalPrice += pdt.productPrice*pdt.quantity
             
-
-
-            totalDiscountPrice += pdt.discountPrice*pdt.quantity
+            if(pdt.productId.offerPrice){
+                totalDiscountPrice += (pdt.productPrice - pdt.productId.offerPrice)*pdt.quantity
+            }else{
+                totalDiscountPrice += pdt.discountPrice*pdt.quantity
+            }
             
             
         });
@@ -196,7 +198,7 @@ const applyCoupon = async(req, res, next) => {
 
 const removeCoupon = async(req, res, next) => {
     try {
-        req.session.couponData = null
+        req.session.coupon = null
         res.json({ status: true })
     } catch (error) {
         next(error)

@@ -15,7 +15,8 @@ const productsSchema = mongoose.Schema({
     },
     category:{
         type:mongoose.Schema.Types.ObjectId,
-        ref: 'Categories'
+        ref: 'Categories',
+        default: null
     },
     size:{
         type:Array
@@ -61,13 +62,21 @@ const productsSchema = mongoose.Schema({
         type:Number,
         default: 0
     },
-    offer:{
-        offerPrice:{type:Number},
-        offerAppliedBy:{
-            type:String
+    offerType: {
+        type: String,
+        enum: ['Offers', 'BrandOffers'],
+        required: function(){
+            this.offer !== ''
         }
+    },
+    offer:{
+        type: mongoose.Schema.Types.ObjectId,
+        refPath: 'offerType'
+    },
+    offerPrice: { type: Number },
+    offerAppliedBy: { 
+        type: String
     }
-   
 },
 {
     timestamps:true,

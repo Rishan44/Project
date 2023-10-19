@@ -5,7 +5,6 @@
 <%- include('../partials/userHeader.ejs') %>
 
 
-
         <!-- mini cart start -->
         <div class="sidebar-cart-active">
             <div class="sidebar-cart-all">
@@ -114,9 +113,11 @@
                             <div class="tab-content jump">
                                 <div id="shop-1" class="tab-pane active">
                                     <div class="row">
+
                                        
                                         <% if(productData && productData.length > 0){
                                             for(let i=0;i<productData.length; i++){
+                                               if (productData[i].category && productData[i].category.isListed) { %> 
                                                  %> 
                                                  
                                                  <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12">
@@ -125,7 +126,20 @@
                                                             <a href="/shop/productOverview1/<%= productData[i]._id %>">
                                                                 <img src="/assets/images/product/<%= productData[i].images[0] %>" alt="">
                                                             </a>
-                                                            <span class="pro-badge left bg-red">-20%</span>
+
+
+                                                            
+                                                            <% 
+                                            if(productData[i].offer && productData[i].offer.status == 'Available'){
+                                                %>
+                                                <!-- <span class="label"><%=// productData[i].offer.name %></span> -->
+                                                <span class="pro-badge left bg-red"><%= productData[i].offer.name %> <%= productData[i].offer.discount %>%
+                                                </span>
+                                                <%  
+                                            }
+                                            %>
+
+
                                                             <div class="product-action-2 tooltip-style-2">
 
                                                                 
@@ -193,10 +207,13 @@
                                                         </div>
                                                     </div>
                                                 </div>
-
-                                                 <% 
+                                                <% }
                                             }
-                                        } %>
+                                        }else{ %>
+                                            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 470px; width: 730px;">
+                                                <h3 style="text-align: center;">No Products Available</h3>
+                                            </div>
+                                            <% } %>
                                         
 
 
@@ -986,7 +1003,9 @@
                             <% if(removeFilter==='true' ) { %>
                                 <a href="/shop?page=1" class="bg-danger px-3 py-1 text-white text-decoration-none"
                                     style="cursor: pointer; padding: 10px 40px 10px 40px !important;">
+                                    
                                     Remove Filters&nbsp;<i class="bi bi-x-square"></i>
+                                    
                                 </a>
                                 <% } %>
 
@@ -1001,12 +1020,13 @@
                                         <li><a href="shop.html">Baby Boy </a></li>
                                         <li><a href="shop.html">Accessories </a></li> -->
                                         <% 
+                                        //const selectedCategory = pdtCat;
                                         categoryNames.forEach((category) => {
                                             %>
                                             <li >
                                                 <a href="?category=<%= category._id %>&sortValue=<%= sortValue %>
                                                         &brand=<%= brand %>&minPrice=<%= minPrice %>&maxPrice=<%= maxPrice %>
-                                                        &search=<%= search %>" id="myDIV">
+                                                        &search=<%= search %>" id="myDIV" class=<%= category._id == pdtCat ? 'text-danger' : '' %>>
                                                     <%= category.name %>
                                                 </a>
                                             </li>
@@ -1034,7 +1054,7 @@
                                                         <li>
                                                             <a href="?brand=<%= brand._id %>&sortValue=<%= sortValue %>
                                                                 &category=<%= category %>&minPrice=<%= minPrice %>&maxPrice=<%= maxPrice %>
-                                                                &search=<%= search %>" class="active">
+                                                                &search=<%= search %>" class=<%= brand._id == pdtBrand ? 'text-danger' : '' %>>
                                                                 <%= brand._id %>
                                                             </a>
                                                         </li>
@@ -1054,17 +1074,20 @@
                                         <div class="label-input">
                                             <ul>
                                                 <li>
-                                                    <a href="?minPrice=0&maxPrice=999&sortValue=<%= sortValue %>&category=<%= category %>&brand=<%= brand %>&search=<%= search %>">
+                                                    <a href="?minPrice=0&maxPrice=999&sortValue=<%= sortValue %>&category=<%= category %>&brand=<%= brand %>&search=<%= search %>"
+                                                        class=<%= minPrice === '0' && maxPrice === '999'  ? 'text-danger' : '' %>  >
                                                         &#8377; 0 - &#8377; 999
                                                     </a>
                                                 </li>
                                                 <li>
-                                                    <a href="?minPrice=1000&maxPrice=2999&sortValue=<%= sortValue %>&category=<%= category %>&brand=<%= brand %>&search=<%= search %>">
+                                                    <a href="?minPrice=1000&maxPrice=2999&sortValue=<%= sortValue %>&category=<%= category %>&brand=<%= brand %>&search=<%= search %>"
+                                                        class=<%= minPrice === '1000' && maxPrice === '2999'  ? 'text-danger' : '' %> >
                                                         &#8377; 1000 - &#8377; 2999
                                                     </a>
                                                 </li>
                                                 <li>
-                                                    <a href="?minPrice=3000&maxPrice=4999&sortValue=<%= sortValue %>&category=<%= category %>&brand=<%= brand %>&search=<%= search %>">
+                                                    <a href="?minPrice=3000&maxPrice=4999&sortValue=<%= sortValue %>&category=<%= category %>&brand=<%= brand %>&search=<%= search %>"
+                                                        class=<%= minPrice === '3000' && maxPrice === '4999'  ? 'text-danger' : '' %> >
                                                         &#8377; 3000 - &#8377; 4999
                                                     </a>
                                                 </li>

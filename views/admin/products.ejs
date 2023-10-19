@@ -1,8 +1,9 @@
+
 <%- include('../partials/adminAside.ejs') %>
 
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
 
-  <%- include('../partials/adminNavbar.ejs') %>  
+   <%- include('../partials/adminNavbar.ejs') %>
 
  <div class="container-fluid py-4">
     <div class="row">
@@ -17,31 +18,32 @@
             </div>
           </div>
           <div class="card-body px-0 pb-2">
-            <div class="table-responsive p-0">
+            <div class="table-responsive p-3">
 
-              <table class="table align-items-center mb-0">
+              <table class="table align-items-center mb-0" id="sortTable">
 
                 <thead>
                   <tr>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Image</th>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Product</th>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2" style="text-align: center; padding-right: 9px;">Stock</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Image</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Product</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Stock</th>
                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Category</th>
                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Price</th>
                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Action</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Apply Offer</th>
                   </tr>
                 </thead>
 
                 <tbody>
 
                   <% 
-                    if(productData.length > 0){
+                    if(productData && productData.length > 0){
                       for(let i=0; i<productData.length; i++){
                          %>
                             <tr>
 
                               <td>
-                                <img style="width: 5rem;" src="/assets/images/product/<%= productData[i].images[0]  %>" alt="Product image">
+                                <img style="width: 5rem;" src="/assets/images/product/<%= productData[i].images[0]  %>" alt="">
                               </td>
 
                               <td>
@@ -53,9 +55,10 @@
                                 </div>
                               </td>
 
+                              
                               <td class="align-middle text-center text-sm">
                                 <span class="text-secondary text-xs font-weight-bold"><%= productData[i].quantity %></span>
-                              </td> 
+                              </td>
 
                               <td class="align-middle text-center text-sm">
                                 <p class="text-xs font-weight-bold mb-0"><%= productData[i].category.name %></p>
@@ -65,6 +68,7 @@
                                 <span class="text-secondary text-xs font-weight-bold"><%= productData[i].price %></span>
                               </td>
 
+
                               <td class="align-middle text-center">
 
                                 <a href="/admin/products/editProduct/<%= productData[i]._id %>" class="btn btn-primary">Edit</a>
@@ -72,20 +76,120 @@
                                 <% 
                                   if(productData[i].isListed === true){
                                      %>
-                                       <a href="/admin/products/deleteProduct/<%= productData[i]._id %>" class="btn btn-danger" onclick="alert('Do you want to delete this product?')">Delete</a>
+                                       <a href="#confirmationPopUp" class="btn btn-danger modalBTN" data-id="<%= productData[i]._id %>"  data-bs-toggle="modal">Delete</a>
                                      <%
                                   }else{
                                       %>
-                                      <a href="/admin/products/deleteProduct/<%= productData[i]._id %>" class="btn btn-success">Add</a>
+                                      <a href="#confirmationPopUp " class="btn btn-success modalBTN" data-id="<%= productData[i]._id %>" data-bs-toggle="modal">Add</a>
                                       <%
                                   }
                                 %>
 
+
+                                                                  <!-- Modal Start  -->
+                                                                  <div class="modal fade" id="confirmationPopUp" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                                    <div class="modal-dialog">
+                                                                      <div class="modal-content">
+                                                                          <div class="modal-header">
+                                                                          <h1 class="modal-title fs-5" id="exampleModalLabel">Are You Sure?</h1>
+                                                                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                          </div>
+                                                                          <div class="modal-body">
+                                                                                  <strong> Are you sure? Do you want to Delete/Add this product ?</strong>
+                                                                                  <div class="modal-footer mt-2">
+                                                                                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                                                      <a id="confirmBTN" class="btn btn-primary">Confirm</a>
+                                                                                  </div>
+                                                                          </div>
+                                                                      </div>
+                                                                    </div>
+                                                                </div> 
+                                                                <!-- Modal End  -->
                               </td>
+
+                              <% 
+                              if(productData[i].offerAppliedBy && productData[i].offerAppliedBy === 'Category'){
+                                %>
+                                <td>
+                                  <small>Offer Already Applied to Category</small>
+                                  
+                                  <button class="btn btn-secondary applyOfferBTN" data-bs-toggle="modal" data-bs-target="#offerModal" data-id="<%= productData[i]._id %>">
+                                    <i class="bi bi-arrow-left-right"></i>
+                                  </button>
+                                </td>
+                                <%  
+
+                              }else if(productData[i].offerAppliedBy && productData[i].offerAppliedBy === 'Product'){
+                                %>
+                                <td>
+                                  <form action="/admin/removeProductOffer/<%= productData[i]._id %>" method="post">
+                                    <button type="submit" class="btn btn-danger">
+                                      Remove
+                                    </button>
+                                  </form>
+                                </td>
+                                <%  
+                              }else{
+                                %>
+                                <td>
+                                  <button class="btn btn-success applyOfferBTN" id="applyPdtOfferBTN" data-bs-toggle="modal"
+                                          data-bs-target="#offerModal" data-id="<%= productData[i]._id %>">Apply</button>
+                                </td>
+                                <% 
+                              }
+                              %>
+
+                              <!-- Modal to apply offer to product start -->
+                              <div class="modal fade" id="offerModal"
+                              tabindex="-1" aria-labelledby="exampleModalLabel"
+                              aria-hidden="true">
+                              <div class="modal-dialog">
+                                  <div class="modal-content">
+
+                                      <div class="modal-header">
+                                          <h5 class="modal-title" id="exampleModalLabel">
+                                            APPLY OFFER
+                                          </h5>
+                                          <button type="button" class="btn-close"
+                                              data-bs-dismiss="modal" aria-label="Close"></button>
+                                      </div>
+
+                                      <form action="/admin/applyOfferToProduct"  method="post">
+                                          <div class="modal-body">
+                                              <input type="hidden" name="productId"  id="offerProductId">
+                                              <label for="offer">Select Offer </label>
+                                              <select name="offerId" id="offer" class="form-control">
+                                                  <% 
+                                                  offerData.forEach( (offer) => {
+                                                    %>
+                                                    <option value="<%= offer._id %>">
+                                                      <%= offer.name %>
+                                                    </option>
+                                                    <%  
+                                                  })
+                                                  %>
+                                              </select>
+
+                                          </div>
+                                          <div class="modal-footer">
+                                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                              <button type="submit" class="btn btn-primary">APPLY</button>
+                                          </div>
+                                      </form>
+                                  </div>
+                              </div>
+                              </div>
+                              <!-- Modal to apply offer to product end -->
                               
                             </tr>
                          <% 
                       }
+                    }else{
+                      %>
+                      <tr>
+                        <td><h6>Products not added yet!</h6></td>
+                      </tr>
+                      <%  
                     }
                   %>
 
@@ -98,8 +202,24 @@
     </div>
   </div>
 
-  <%- include('../partials/adminFooter.ejs') %>  
+  <%- include('../partials/adminFooter.ejs') %>      
 
 </main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+<script>
+    $('.modalBTN').click( function () {
+        var productId = $(this).data('id');
+        var routeURL = '/admin/products/deleteProduct/'+productId
+        $(".modal-footer #confirmBTN").attr('href', routeURL);
+    });
+
+    $('.applyOfferBTN').click( function () {
+      console.log('apply offer btn clicked');
+      let pdtId = $(this).data('id');
+      console.log('pdtId : '+pdtId);
+      $('#offerProductId').val(pdtId)
+    })
+</script>
 
 <%- include('../partials/adminScript.ejs') %>
