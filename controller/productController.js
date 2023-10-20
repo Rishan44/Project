@@ -344,7 +344,7 @@ const loadProductOverview = async(req,res,next)=>{
             }
 
         }
-        res.render('productOverview1',{productData, parentPage:'Shop',page:'Product Overview',isLoggedIn,isPdtExistInCart,isPdtAWish})
+        res.render('productOverView1',{productData, parentPage:'Shop',page:'Product Overview',isLoggedIn,isPdtExistInCart,isPdtAWish})
     } catch (error) {
         console.log(error.message);
     }
