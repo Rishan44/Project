@@ -8,7 +8,7 @@ const {isUserLoggedIn, isUserLoggedOut ,isUserBlocked} = require('../middleware/
 
 const userRoute=express()
 
-userRoute.set('views', 'views/user')
+userRoute.set('views', '/views/user')
 
 userRoute.use(async(req,res,next)=>{
     res.locals.cartCount=req.session.cartCount
