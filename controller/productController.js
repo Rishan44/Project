@@ -74,7 +74,7 @@ const loadEditProduct = async(req,res)=>{
         const pdtData = await Products.findById({_id:id}).populate('category')
         const catData = await Categories.find({})
 
-        res.render('editproduct',{pdtData, catData, page:'Products'})
+        res.render('editProduct',{pdtData, catData, page:'Products'})
     } catch (error) {
         next(error)
     }

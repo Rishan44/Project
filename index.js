@@ -34,7 +34,8 @@ app.use(nocache())
 /** For Admin Route */
 
 app.use('/admin',adminRoute);
-app.use('/',userRoute);   
+app.use('/',userRoute); 
+
 
 
 

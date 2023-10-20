@@ -24,8 +24,8 @@ userRoute.get("/login",isUserLoggedOut,userController.loadLogin)
 userRoute.post("/login",isUserLoggedOut,userController.postLogin)
 
 
-userRoute.get("/register",isUserLoggedIn,userController.loadRegister)
-userRoute.post('/register',isUserLoggedIn,userController.postRegister)
+userRoute.get("/register",userController.loadRegister)
+userRoute.post('/register',userController.postRegister)
 
 userRoute.post('/validateOTP',isUserLoggedOut,userController.validateOTP)
 userRoute.post('/resendOTP',userController.resendOTP)

@@ -85,7 +85,6 @@ const loadRegister = async (req, res, next) => {
     try {
         res.render('register')
     } catch (error) {
-        next
         next(error);
     }
 }
